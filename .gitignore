@@ -1,0 +1,8 @@
+test.py
+__pycache__
+venv
+tempCodeRunnerFile.py
+tempCodeRunnerFile.python
+build
+dist
+commits2pdf.egg-info
