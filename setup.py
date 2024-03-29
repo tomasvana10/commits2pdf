@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="commits2pdf",
-    version="1.0.4",
+    version="1.0.5",
     author="Tomas Vana",
     url="https://github.com/tomasvana10/commits2pdf",
     description="View commit history through a PDF",

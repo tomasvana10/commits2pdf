@@ -1,7 +1,9 @@
 from os import path
 from datetime import datetime
 
-import git
+from git import Repo
+
+from .logger import logger
 
 class Commits(object):
     def __init__(self, **kwargs):
@@ -15,22 +17,23 @@ class Commits(object):
         self.reverse = kwargs["reverse"]
         self.newest_n_commits, self.oldest_n_commits = kwargs["newest_n_commits"], \
                                                        kwargs["oldest_n_commits"]
+        self.queries = kwargs["queries"]
 
         self.r = self.get_repo()  
         self.rname = path.basename(self.r.working_dir)     
-        self.commits = self.gather_commits()
-        self.formatted_commits: list[Commit] = self.format_commits()
+        self.raw_commits: list[Repo.commit] = self.gather_commits()
+        self.commit_objects: list[Commit] = self.instantiate_commits()
+        self.filtered_commits: list[Commit] = self.filter_commits()
 
     def get_repo(self):
         if self.url:
-            r = git.Repo.clone_from(self.url, self.rpath, branch=self.branch)
+            r = Repo.clone_from(self.url, self.rpath, branch=self.branch)
         else: 
-            r = git.Repo(self.rpath)
+            r = Repo(self.rpath)
         
         return r
 
     def gather_commits(self):
-        step = -1 if not self.reverse else 1
         commits = list(
             self.r.iter_commits(
                 since=self.start_date,
@@ -38,30 +41,52 @@ class Commits(object):
                 rev=self.branch,
             )
         )
-        if self.newest_n_commits:
-            if not self.newest_n_commits > len(commits):
-                commits = commits[:self.newest_n_commits]
-        elif self.oldest_n_commits:
-            if not self.oldest_n_commits > len(commits):
-                commits = commits[-self.oldest_n_commits:]
+        logger.info(f"Gathered {len(commits)} commit(s) based on since, until and rev information.")
         
-        filtered_commits = commits[::step] 
+        return commits
+    
+    def instantiate_commits(self):
+        commit_objects = []
+        for commit in self.raw_commits:
+            commit_objects.append(Commit(self.owner, self.rname, self.branch, commit))
+
+        return commit_objects
+    
+    def filter_commits(self):
+        filtered_commits = self.commit_objects
+        
+        if self.queries:
+            filtered_commits = [commit for commit in self.commit_objects for q in self.queries if q in commit["description"] or q in commit["title"]]
+            logger.info(f"Filtered {len(filtered_commits)} commit(s) from {len(self.commit_objects)} existing commits based on query")
+            
         if self.authors:
-            filtered_commits = [commit for commit in filtered_commits if commit.author.email in self.authors]
+            prior_len = len(filtered_commits)
+            filtered_commits = [commit for commit in filtered_commits if commit["author_email"] in self.authors]
+            logger.info(f"Filtered {len(filtered_commits)} commit(s) from {prior_len} commit(s) based on author name.")
+            
+        if self.newest_n_commits:
+            if not self.newest_n_commits >= len(filtered_commits):
+                filtered_commits = filtered_commits[:self.newest_n_commits]
+                logger.info(f"Selecting n newest number of commits ({self.newest_n_commits}).")
+            else:
+                logger.warn(f"Newest n number of commits ({self.newest_n_commits}) could not be selected as it is greater than or equal to the current amount of commits")
+        elif self.oldest_n_commits:
+            if not self.oldest_n_commits >= len(filtered_commits):
+                filtered_commits = filtered_commits[-self.oldest_n_commits:]
+                logger.info(f"Selecting n oldest number of commits ({self.oldest_n_commits}).")
+            else: 
+                logger.warn(f"Oldest n number of commits ({self.oldest_n_commits}) could not be selected as it is greater than or equal to the current amount of commits")
+
+        step = -1 if not self.reverse else 1
+        filtered_commits = filtered_commits[::step] 
         
         return filtered_commits
-    
-    def format_commits(self):
-        commits = []
-        for commit in self.commits:
-            commits.append(Commit(self.owner, self.rname, self.branch, commit))
-        return commits
 
 class Commit(dict):
-    def __init__(self, owner, rname, branch, commit: git.Repo.commit):
+    def __init__(self, owner, rname, branch, commit: Repo.commit):
         self["rname"] = rname 
         self["branch"] = branch
-        self["author_name"] = commit.author.name
+        self["author_name"] = commit.author
         self["author_email"] = commit.author.email
         self["date"] = datetime.fromtimestamp(commit.committed_date)
         self["hexsha_short"] = commit.hexsha[:7]
