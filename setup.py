@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="commits2pdf",
-    version="0.0.2",
+    version="1.0.3",
     author="Tomas Vana",
     url="https://github.com/tomasvana10/commits2pdf",
     description="View commit history through a PDF",
@@ -13,10 +13,22 @@ setup(
     packages=find_packages(),
     license="MIT",
     install_requires=[
-        "GitPython"
+        "GitPython",
+        "pycairo"
     ],
     classifiers=[
-        "Topic :: Multimedia"
+        "Topic :: Multimedia",
+        "Development Status :: 5 - Production/Stable",
+        "Environment :: Console",
+        "Intended Audience :: End Users/Desktop",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "License :: OSI Approved :: MIT License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python",
+        "Programming Language :: Python :: 3",
+        "Topic :: Education",
+        "Topic :: Office/Business",
     ],
     platforms="any",
     entry_points={
