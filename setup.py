@@ -7,7 +7,7 @@ setup(
     name="commits2pdf",
     version="0.0.2",
     author="Tomas Vana",
-    url="https://github.com/tomasvana/commits2pdf",
+    url="https://github.com/tomasvana10/commits2pdf",
     description="View commit history through a PDF",
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
