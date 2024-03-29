@@ -11,8 +11,8 @@ Visualise a GitHub repo's commit history in PDF form via the command-line
 If you encounter errors with building `pycairo`, click [here](https://stackoverflow.com/a/76175684/23245953)
 <br><br>
 ## Usage
-**Usage info in the command-line**:
-View it by running `commits2pdf -h`
+**See usage info in the command-line**:
+Run `commits2pdf -h`
 
 <br>**Simple usage**:
 ```
@@ -39,20 +39,20 @@ _Explanation_: Display the newest ten commits (after any filtering) in reverse o
 
 <br>**Advanced usage exmaple #3**
 ```
-commits2pdf -O tomasvana10 -q javascript,test -onc 5 -po
+commits2pdf -O tomasvana10 -q javascript,test -onc 5 -po -o ../
 ```
-_Explanation_: Display the 5 newest commits after querying the current repository for "javascript" and "test". Also prevents the PDF directory from being automatically opened.
+_Explanation_: 
+1. Display the 5 oldest commits after querying the current repository for "javascript" and "test".
+2. Prevent the PDF directory from being automatically opened.
+3. Output the PDF to the parent directory
+   
 <br>**Clone the repo you want to document on-demand**:
 ```
-<<<<<<< HEAD
 commits2pdf -O tomasvana10 -fc some_repo_name
-=======
-commits2pdf -o tomasvana10 -fc some_repo_name
->>>>>>> 0dfd95f6da4994507cc3e8b51c67459b6b24455a
 ```
 _Explanation_: Create the repo you have specified and make the PDF. This repo is always cloned into the current working directory.
 <br><br>
 ## Gallery
-<img width="513" alt="commits pdf dark" src="https://github.com/tomasvana10/commits2pdf/assets/124552709/40d88bfc-c727-425a-9b7e-74da89c52220"> 
+<img width="487" alt="commits pdf dark" src="https://github.com/tomasvana10/commits2pdf/assets/124552709/0f12e0c8-e900-450c-9c2f-facbeec68232"> 
 <hr>
-<img width="509" alt="commits pdf light" src="https://github.com/tomasvana10/commits2pdf/assets/124552709/1ec90e60-53fa-41b1-a816-8e420ecb3c9a">
+<img width="488" alt="commits pdf light" src="https://github.com/tomasvana10/commits2pdf/assets/124552709/3d6e6826-f2cc-45f8-86ce-0cc2bfcdacc7">
