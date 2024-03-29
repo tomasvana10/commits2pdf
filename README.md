@@ -7,7 +7,8 @@ Visualise a GitHub repo's commit history in PDF form via the command-line
 <br><br>
 ## Installation
 `pip install commits2pdf` or<br>
-`pip3 install commits2pdf`
+`pip3 install commits2pdf`<br>
+If you encounter errors with building `pycairo`, click [here](https://stackoverflow.com/a/76175684/23245953)
 <br><br>
 ## Usage
 **Simple usage**:
