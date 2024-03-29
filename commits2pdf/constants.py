@@ -1,0 +1,2 @@
+MATCH_DATE = r"^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$" # YYYY/mm/dd or YYYY/m/d
+EMAILS = r"^([\w+-.%]+@[\w.-]+\.[A-Za-z]{2,4})(,[\w+-.%]+@[\w.-]+\.[A-Za-z]{2,4})*$" # usr@email.com or usr@email.com,user2@email.com, etc

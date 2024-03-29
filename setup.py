@@ -5,14 +5,16 @@ with open("README.md") as f:
 
 setup(
     name="commits2pdf",
-    version="0.1",
+    version="0.0.2",
     author="Tomas Vana",
     url="https://github.com/tomasvana/commits2pdf",
     description="View commit history through a PDF",
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
     license="MIT",
-    install_requires=[],
+    install_requires=[
+        "GitPython"
+    ],
     classifiers=[
         "Topic :: Multimedia"
     ],
@@ -21,8 +23,5 @@ setup(
         "console_scripts": [
             "commits2pdf = commits2pdf.cli:main"
         ],
-        "gui_scripts": [
-            "commits2pdf-ctk = commits2pdf.gui:main"
-        ]
     }
 )
