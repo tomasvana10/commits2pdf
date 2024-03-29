@@ -13,13 +13,13 @@ If you encounter errors with building `pycairo`, click [here](https://stackoverf
 ## Usage
 **Simple usage**:
 ```
-commits2pdf -ow tomasvana10
+commits2pdf -o tomasvana10
 ```
 _Explanation_: Run the commmits2pdf cli tool in the current directory (assuming it is a repository). The owner name must be provided in all cases.
 
-<br>**More advanced usage**:
+<br>**Advanced usage example #1**:
 ```
-commits2pdf -ow tomasvana10 -rp ../seriescalculator_sdd -a person@email.com,other_person@gmail.com -s 2024/11/30 -e 2024/12/30 -b other_branch -l
+commits2pdf -o tomasvana10 -rp ../seriescalculator_sdd -a person@email.com,other_person@gmail.com -s 2024/11/30 -e 2024/12/30 -b other_branch -l
 ```
 _Explanation_: 
 1. Override the default repository path
@@ -28,8 +28,19 @@ _Explanation_:
 4. Search for commits only made to `other_branch`
 5. Toggle light mode for the PDF output (`-l`)
 
-<br>**Clone the repo you need on-demand**:
+<br>**Advanced usage example #2**
 ```
-commits2pdf -ow tomasvana10 -fc some_repo_name
+commits2pdf -o tomasvana10 -nnc 10 -r
 ```
-_Explanation_: Create the repo you have specified and make the PDF (in the current working directory, not the new repo directory). A path for this repo can be specified using the `-rp` parameter.
+_Explanation_: Display the newest ten commits (after any filtering) in reverse order (newest to oldest instead of the default, which is oldest to newest).
+
+<br>**Clone the repo you want to document on-demand**:
+```
+commits2pdf -o tomasvana10 -f some_repo_name
+```
+_Explanation_: Create the repo you have specified and make the PDF (in the current working directory, not the new repo directory). This repo is always cloned into the current working directory.
+<br><br>
+## Gallery
+<img width="513" alt="commits pdf dark" src="https://github.com/tomasvana10/commits2pdf/assets/124552709/40d88bfc-c727-425a-9b7e-74da89c52220"> 
+<hr>
+<img width="509" alt="commits pdf light" src="https://github.com/tomasvana10/commits2pdf/assets/124552709/1ec90e60-53fa-41b1-a816-8e420ecb3c9a">

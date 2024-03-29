@@ -12,6 +12,9 @@ class Commits(object):
         self.authors: list[str] = kwargs["authors"]
         self.start_date = kwargs["start_date"]
         self.end_date = kwargs["end_date"]
+        self.reverse = kwargs["reverse"]
+        self.newest_n_commits, self.oldest_n_commits = kwargs["newest_n_commits"], \
+                                                       kwargs["oldest_n_commits"]
 
         self.r = self.get_repo()  
         self.rname = path.basename(self.r.working_dir)     
@@ -27,17 +30,24 @@ class Commits(object):
         return r
 
     def gather_commits(self):
+        step = -1 if not self.reverse else 1
         commits = list(
             self.r.iter_commits(
                 since=self.start_date,
                 until=self.end_date,
                 rev=self.branch,
             )
-        )[::-1]
+        )
+        if self.newest_n_commits:
+            if not self.newest_n_commits > len(commits):
+                commits = commits[:self.newest_n_commits]
+        elif self.oldest_n_commits:
+            if not self.oldest_n_commits > len(commits):
+                commits = commits[-self.oldest_n_commits:]
         
-        filtered_commits = commits
+        filtered_commits = commits[::step] 
         if self.authors:
-            filtered_commits = [commit for commit in commits if commit.author.email in self.authors]
+            filtered_commits = [commit for commit in filtered_commits if commit.author.email in self.authors]
         
         return filtered_commits
     
@@ -45,7 +55,6 @@ class Commits(object):
         commits = []
         for commit in self.commits:
             commits.append(Commit(self.owner, self.rname, self.branch, commit))
-        
         return commits
 
 class Commit(dict):
