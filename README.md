@@ -36,7 +36,7 @@ _Explanation_: Display the newest ten commits (after any filtering) in reverse o
 
 <br>**Clone the repo you want to document on-demand**:
 ```
-commits2pdf -o tomasvana10 -f some_repo_name
+commits2pdf -o tomasvana10 -fc some_repo_name
 ```
 _Explanation_: Create the repo you have specified and make the PDF (in the current working directory, not the new repo directory). This repo is always cloned into the current working directory.
 <br><br>
