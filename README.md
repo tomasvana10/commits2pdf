@@ -44,7 +44,11 @@ commits2pdf -O tomasvana10 -q javascript,test -onc 5 -po
 _Explanation_: Display the 5 newest commits after querying the current repository for "javascript" and "test". Also prevents the PDF directory from being automatically opened.
 <br>**Clone the repo you want to document on-demand**:
 ```
+<<<<<<< HEAD
 commits2pdf -O tomasvana10 -fc some_repo_name
+=======
+commits2pdf -o tomasvana10 -fc some_repo_name
+>>>>>>> 0dfd95f6da4994507cc3e8b51c67459b6b24455a
 ```
 _Explanation_: Create the repo you have specified and make the PDF. This repo is always cloned into the current working directory.
 <br><br>
