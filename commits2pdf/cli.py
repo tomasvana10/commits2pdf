@@ -6,7 +6,7 @@ from .render import make_pdf
 from .commits import Commits
 from .constants import MATCH_DATE, EMAILS, LIGHT, DARK
 
-USAGE_INFO = """Simply run ``commits2pdf -ow <owner_name>`` in the command-line to generate a PDF of your repo's commit history 
+USAGE_INFO = """Simply run ``commits2pdf -o <owner_name>`` in the command-line to generate a PDF of your repo's commit history 
 (assuming your current directory is a repository). The outupt is always in your current working directory.
 """ 
 
