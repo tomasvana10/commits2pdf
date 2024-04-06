@@ -16,13 +16,13 @@ Run `commits2pdf -h`
 
 <br>**Simple usage**:
 ```
-commits2pdf -O tomasvana10
+c2p -O tomasvana10
 ```
 _Explanation_: Run the commmits2pdf cli tool in the current directory (assuming it is a repository). The owner name must be provided in all cases.
 
 <br>**Advanced usage example #1**:
 ```
-commits2pdf -O tomasvana10 -rp ../seriescalculator_sdd -a person@email.com,other_person@gmail.com -s 2024/11/30 -e 2024/12/30 -b other_branch -l
+c2p -O tomasvana10 -rp ../seriescalculator_sdd -a person@email.com,other_person@gmail.com -s 2024/11/30 -e 2024/12/30 -b other_branch -l
 ```
 _Explanation_: 
 1. Override the default repository path
@@ -37,14 +37,16 @@ commits2pdf -O tomasvana10 -nnc 10 -r
 ```
 _Explanation_: Display the newest ten commits (after any filtering) in reverse order (newest to oldest instead of the default, which is oldest to newest).
 
-<br>**Advanced usage exmaple #3**
+<br>**Advanced usage example #3**
 ```
-commits2pdf -O tomasvana10 -q javascript,test -onc 5 -po -o ../
+commits2pdf -O tomasvana10 -qa javascript,test -onc 5 -po -o ..
 ```
 _Explanation_: 
-1. Display the 5 oldest commits after querying the current repository for "javascript" and "test".
+1. Display the 5 oldest commits after querying the current repository's commits for either "javascript" or "test"
 2. Prevent the PDF directory from being automatically opened.
 3. Output the PDF to the parent directory
+
+**NOTE**: -qa selects commits that include **any** query criteria in the title or description, while -QA selects commits that include **all** query criteria in the title or description.
    
 <br>**Clone the repo you want to document on-demand**:
 ```

@@ -5,7 +5,7 @@ with open("README.md") as f:
 
 setup(
     name="commits2pdf",
-    version="1.0.5",
+    version="1.0.6",
     author="Tomas Vana",
     url="https://github.com/tomasvana10/commits2pdf",
     description="View commit history through a PDF",
@@ -14,7 +14,7 @@ setup(
     license="MIT",
     install_requires=[
         "GitPython",
-        "pycairo"
+        "fpdf"
     ],
     classifiers=[
         "Topic :: Multimedia",
@@ -33,7 +33,7 @@ setup(
     platforms="any",
     entry_points={
         "console_scripts": [
-            "commits2pdf = commits2pdf.cli:main"
+            "c2p = commits2pdf.cli:main"
         ],
     }
 )

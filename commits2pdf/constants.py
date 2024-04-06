@@ -5,6 +5,7 @@ QUERY = r"^(?:[^,\s]+(?:,[^,\s]+)*)$" # value1,value2 etc or value1
 WIDTH = 612
 HEIGHT = 792
 MARGIN = 50
+SPACING = 15
 
 LIGHT = {
     "background": (1, 1, 1),
