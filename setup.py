@@ -10,6 +10,7 @@ setup(
     url="https://github.com/tomasvana10/commits2pdf",
     description="View a filtered commit history in PDF form.",
     long_description=LONG_DESCRIPTION,
+    long_description_content_type="text/markdown",
     packages=find_packages(),
     license="MIT",
     platforms="any",
