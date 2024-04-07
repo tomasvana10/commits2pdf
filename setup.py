@@ -5,17 +5,24 @@ with open("README.md") as f:
 
 setup(
     name="commits2pdf",
-    version="1.0.6",
+    version="1.1.5",
     author="Tomas Vana",
     url="https://github.com/tomasvana10/commits2pdf",
-    description="View commit history through a PDF",
+    description="View a filtered commit history in PDF form.",
     long_description=LONG_DESCRIPTION,
     packages=find_packages(),
     license="MIT",
+    platforms="any",
     install_requires=[
         "GitPython",
+        "pycairo",
         "fpdf"
     ],
+    entry_points={
+        "console_scripts": [
+            "c2p = commits2pdf.cli:main"
+        ]
+    },
     classifiers=[
         "Topic :: Multimedia",
         "Development Status :: 5 - Production/Stable",
@@ -29,11 +36,5 @@ setup(
         "Programming Language :: Python :: 3",
         "Topic :: Education",
         "Topic :: Office/Business",
-    ],
-    platforms="any",
-    entry_points={
-        "console_scripts": [
-            "c2p = commits2pdf.cli:main"
-        ],
-    }
+    ]
 )
