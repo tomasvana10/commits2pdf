@@ -238,9 +238,12 @@ class Commit(dict):
          
         # Extract the message from the title
         msg = commit.message.split("\n")
-        self["title"] = msg[0]
+        self["title"] = msg[0].encode("latin-1", errors="replace")\
+                                                            .decode("latin-1")
         if len(msg) > 1:
-            self["description"] = "\n".join(msg[1:])
+            self["description"] = "\n".join(msg[1:]).encode("latin-1", 
+                                                            errors="replace")\
+                                                            .decode("latin-1")
         else:
             self["description"] = ""
     

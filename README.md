@@ -127,15 +127,15 @@ _Explanation_: Create the repo you have specified and make the PDF. This repo is
   - Hyperlinks
   - Saves metadata
 - **Negatives**
-  - Inconsistent page breaks (limitation with fpdf)
-- **Sample use case**: You do not mind if your PDF has large gaps of space, but you want a nice design that can be generated very fast.
+  - Inconsistent page breaks in some cases due to the difficulty of precalculating the height of a commit, a general limitation with this generation method.
+- **Sample use case**: You do not mind if your PDF has occasionally inconsistent spacing, but you want a nice design that can be generated very fast.
 
 ### fpdf (gen2b - Default)
 - **Positives**
-   - Same as gen2a but with consistent page breaks that do not leave any whitespace
+   - Same as gen2a but with consistent page breaks that do not leave any whitespace.
 - **Negatives**
-  - Slow (time complexity ranges from `O(n)` to `O(n log n)`)
-- **Sample use case**: You want to visualise a relatively small amount of commits in a PDF that is sleek and consistently-designed
+  - Slow when generating large 
+- **Sample use case**: You want to visualise a relatively small amount of commits in a PDF that is sleek and consistently-designed.
 <br><br>
 ## Gallery
 **gen1 title page**<br>

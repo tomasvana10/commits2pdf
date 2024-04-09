@@ -3,13 +3,16 @@ from datetime import datetime
 from os import path
 from pickle import loads, dumps
 from typing import List, Dict, Union
+from pickle import loads, dumps
 
 from fpdf import FPDF
 
 from .constants import (
     TITLE_FONT, SUBTITLE_FONT, MARGIN_FONT, SMALL_TEXT_FONT, MEDIUM_TEXT_FONT,
-    MEDIUM_TEXT_FONT_BOLD, INFO_TEXT_FONT, MARGIN_LR, MARGIN_TB
+    MEDIUM_TEXT_FONT_BOLD, INFO_TEXT_FONT, MARGIN_LR, MARGIN_TB, RECURSION_ERROR,
+    TITLE_PAGE_INFO_FONT
 )
+from .logger import logger
 
 
 class FPDF_PDF(FPDF):
@@ -26,17 +29,12 @@ class FPDF_PDF(FPDF):
         """
         super().__init__() # portrait; millimetres; a4
         FPDF_PDF._set_scaling(scaling)
+        self.recursion_err_flag = False
         self.timestamp = datetime.fromtimestamp(
             int(time())).strftime('%Y-%m-%d %H:%M:%S')
         self._commits, self._output, self._filename, self._ap, self._mode = \
             commits, output, filename, appearance, mode
-        if self._mode == "unstable":
-            self.do_pre_vis = True 
-            self.set_auto_page_break(auto=False)
-        else:
-            self.do_pre_vis = False
-            self.set_auto_page_break(auto=True)
-
+    
         self.set_fill_color(*self._ap["background"])
         self.set_creator("commits2pdf")
         self.set_title(f"Commits Report - {self._commits.rname}")
@@ -44,9 +42,16 @@ class FPDF_PDF(FPDF):
         self.set_subject("Git Commit Report")
         self.set_keywords("git;repo;repository;report;documentation;cli;python")
         self.set_margins(MARGIN_LR, MARGIN_TB)
+        
         self.add_page()
         self._draw_page_bg()
         self._draw_title_page()
+        self.set_auto_page_break(auto=True)
+        if self._mode == "unstable":
+            self.do_pre_vis = True 
+            self.set_auto_page_break(auto=False)
+        else:
+            self.do_pre_vis = False
         
         if len(self._commits.filtered_commits) > 0: self._draw_commits()
         self._write()
@@ -119,7 +124,16 @@ class FPDF_PDF(FPDF):
         """Draw all the parts of a commit to the current ``FPDF`` instance
         or a copy of it as part of the ``gen2b`` generation implementation.
         """
-        p = self if not pre_vis or not self.do_pre_vis else loads(dumps(self))
+        if not pre_vis or not self.do_pre_vis:
+            p = self
+        else:
+            try:
+                p = loads(dumps(self))
+            except RecursionError: # Why this happen bruh?!
+                logger.error(RECURSION_ERROR)
+                self.recursion_err_flag = True
+                exit(1)
+            
         
         y: int = p.get_y()
         p.set_text_color(*self._ap["text"])
@@ -133,19 +147,19 @@ class FPDF_PDF(FPDF):
         p.multi_cell(w=0, h=p.font_size * 1.25, align="L", txt=commit["title"])
         p.ln(-1 * p.font_size * 0.5)
         if self.do_pre_vis and pre_vis and p.get_y() > p.h * 0.95: return "new"
-
+            
         p._set_font(*SMALL_TEXT_FONT)
         p.multi_cell(w=0, h=p.font_size * 1.5, align="L", 
                      txt=commit["description"])
         p.ln()
-        if self.do_pre_vis and pre_vis and p.get_y() > p.h * 0.95: return "new" 
-
+        if self.do_pre_vis and pre_vis and p.get_y() > p.h * 0.95: return "new"
+            
         p.set_text_color(*self._ap["diff_url"])
         p._set_font(*SMALL_TEXT_FONT)
         p.write(p.font_size * 1.5, "View diff on GitHub", commit["diff_url"])
         p.ln(p.font_size * 4.75) 
-        if self.do_pre_vis and pre_vis and p.get_y() > p.h * 0.95: return "new" 
-
+        if self.do_pre_vis and pre_vis and p.get_y() > p.h * 0.95: return "new"
+            
         if pre_vis or not no_divider or not self.do_pre_vis:
             div_y = p.get_y() - p.font_size * 3.25 / 2
             self.set_draw_color(*self._ap["text"])
@@ -175,7 +189,7 @@ class FPDF_PDF(FPDF):
                          + (desc_lines * SMALL_TEXT_FONT[2]) \
                          + (diff_lines * SMALL_TEXT_FONT[2])
 
-        return height > self.h - self.get_y()
+        return height * 1.2 > self.h - self.get_y()
 
     def _draw_title_page(self) -> None:
         """Draw the title, repository name, and filtering information on the
@@ -187,16 +201,16 @@ class FPDF_PDF(FPDF):
         self.ln()
         
         self._set_font(*SUBTITLE_FONT)
-        self.cell(w=0, h=self.font_size * 3, 
+        self.multi_cell(w=0, h=self.font_size * 1.25, 
                   txt=f"Repository: {self._commits.rname}", align="C")
-        self.ln()
+        self.ln(self.font_size)
 
-        self._set_font(*MEDIUM_TEXT_FONT)
+        self._set_font(*TITLE_PAGE_INFO_FONT)
         self.multi_cell(0, self.font_size * 1.5, 
             txt=f"Owner: {self._commits.owner}", align="C")
         self.ln()
         self.multi_cell(0, self.font_size * 1.5, align="C",
-            txt=f"Authors: "
+            txt=f"Selected authors: "
                 f"{', '.join(self._commits.authors.split(',')) if self._commits.authors else 'All'}")
         self.ln()
         self.multi_cell(0, self.font_size * 1.5, align="C",

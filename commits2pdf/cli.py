@@ -153,6 +153,9 @@ def _make_pdf(commits: Commits,
         gen_args.append(scaling)
     
     pdf = cls(*gen_args)
+    try:
+        if pdf.recursion_err_flag: return
+    except: ...
     p = path.abspath(args.output)
     logger.info(f"{commits.rname}-commits_report.pdf successfully generated in {p}")
 

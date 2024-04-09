@@ -25,7 +25,7 @@ CANNOT_USE_SCALE_WARNING = "You cannot set scaling when using the gen1 PDF " \
 
 """Handling the processing of the repository"""
 REPO_ALREADY_EXISTS_WARNING = "The repository you are cloning from already "\
-                              "exists, the repo will be accessed normally."
+                              "exists, so it will be accessed normally."
 DETACHED_BRANCH_ERROR = "The repository you are cloning from already exists, "\
                         "but the branch you specified ({}) is detached."
 BRANCH_ALREADY_EXISTS_WARNING = "The branch you specified ({}) does not exist. " \
@@ -51,11 +51,14 @@ MARGIN = 50
 
 
 """For the fpdf PDF implementation"""
+RECURSION_ERROR = "An error occured when using the gen2b renderer. Please try " \
+                  "adding the -gen2a flag to your console command and try again."
 TITLE_FONT = ["Arial", "B", 36]
 SUBTITLE_FONT = ["Arial", "", 30]
 MARGIN_FONT = ["Arial", "I", 8]
 SMALL_TEXT_FONT = ["Arial", "", 12]
 MEDIUM_TEXT_FONT = ["Arial", "", 16]
+TITLE_PAGE_INFO_FONT = ["Courier", "", 15]
 MEDIUM_TEXT_FONT_BOLD = ["Arial", "B", 16]
 INFO_TEXT_FONT = ["Courier", "", 12]
 MARGIN_LR = 25.4
