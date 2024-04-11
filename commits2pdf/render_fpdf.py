@@ -114,7 +114,7 @@ class FPDF_PDF(FPDF):
                 if self._commit_exceeds_size(commit):
                     self.add_page()
                     self._draw_page_bg()
-                self._draw_commit(commit)        
+                self._draw_commit(commit)
             
     def _draw_commit(self, 
                      commit: Dict[str, str], 
@@ -134,7 +134,6 @@ class FPDF_PDF(FPDF):
                 self.recursion_err_flag = True
                 exit(1)
             
-        
         y: int = p.get_y()
         p.set_text_color(*self._ap["text"])
         p._set_font(*INFO_TEXT_FONT)

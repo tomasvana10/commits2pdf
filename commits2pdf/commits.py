@@ -1,7 +1,7 @@
 from os import path, listdir
 from datetime import datetime
 from shutil import rmtree
-from typing import List, Union, Dict
+from typing import List, Optional, Dict, Union
 
 from git import Repo, GitCommandError, InvalidGitRepositoryError
 
@@ -9,7 +9,7 @@ from .logger import logger
 from .constants import (
     REPO_ALREADY_EXISTS_WARNING, DETACHED_BRANCH_ERROR, 
     BRANCH_ALREADY_EXISTS_WARNING, INVALID_REPO_ERROR, INVALID_REPO_ERROR_2,
-    FILTER_INFO, N_COMMITS_INFO, N_COMMITS_WARN, GATHERED_COMMITS_INFO
+    FILTER_INFO, N_COMMITS_INFO, N_COMMITS_WARN, GATHERED_COMMITS_INFO, CODING
 )
 
 
@@ -21,16 +21,16 @@ class Commits(object):
         
         self.rpath: str = kwargs["rpath"]
         self.owner: str = kwargs["owner"]
-        self.url: Union[str, None] = kwargs["url"]
-        self.branch: Union[str, None] = kwargs["branch"]
-        self.authors: Union[List[str], None] = kwargs["authors"]
-        self.start_date: Union[datetime, None] = kwargs["start_date"]
-        self.end_date: Union[datetime, None] = kwargs["end_date"]
-        self.reverse: bool = kwargs["reverse"]
-        self.newest_n_commits: int = kwargs["newest_n_commits"]
-        self.oldest_n_commits: int= kwargs["oldest_n_commits"]
-        self.queries_any: List[str] = kwargs["queries_any"]
-        self.queries_all: List[str] = kwargs["queries_all"]
+        self.url: Optional[str] = kwargs["url"]
+        self.branch: Optional[str] = kwargs["branch"]
+        self.authors: Optional[List[str]] = kwargs["authors"]
+        self.start_date: Optional[datetime] = kwargs["start_date"]
+        self.end_date: Optional[datetime] = kwargs["end_date"]
+        self.reverse: Optional[bool] = kwargs["reverse"]
+        self.newest_n_commits: Optional[int] = kwargs["newest_n_commits"]
+        self.oldest_n_commits: Optional[int] = kwargs["oldest_n_commits"]
+        self.queries_any: Option[List[str]] = kwargs["queries_any"]
+        self.queries_all: Optional[List[str]] = kwargs["queries_all"]
 
         self.r: Repo = self.get_repo()  
         if isinstance(self.r, Repo): # Repo was successfully found, continue
@@ -165,7 +165,7 @@ class Commits(object):
         
         return commits
     
-    def instantiate_commits(self) -> List[Dict[str, str]]: # Can't use ``Commit`` yet bruh
+    def instantiate_commits(self) -> List[Dict[str, str]]: 
         """Instantiate all the filtered ``Repo.commit`` objects into my own
         simple class that inherits from a dictionary.
         """
@@ -221,7 +221,11 @@ class Commits(object):
 
 class Commit(dict):
     """A simple way of representing a commit as a dictionary."""
-    def __init__(self, owner, rname, branch, commit: Repo.commit):
+    def __init__(self, 
+                 owner: str, 
+                 rname: str, 
+                 branch: str, 
+                 commit: Repo.commit):
         """Assign commit data to the instance."""
         self["rname"] = rname 
         self["branch"] = branch
@@ -235,17 +239,16 @@ class Commit(dict):
         self["info"] = f"{self['hexsha_short']} | Branch: {self['branch']} | " \
                        f"By {self['author_name']} ({self['author_email']}) | " \
                        f"At {self['date'].strftime('%Y-%m-%d')}"
+        self["info"] = Commit._code(self["info"])
          
         # Extract the message from the title
         msg = commit.message.split("\n")
-        self["title"] = msg[0].encode("latin-1", errors="replace")\
-                                                            .decode("latin-1")
-        if len(msg) > 1:
-            self["description"] = "\n".join(msg[1:]).encode("latin-1", 
-                                                            errors="replace")\
-                                                            .decode("latin-1")
-        else:
-            self["description"] = ""
+        self["title"] = Commit._code(msg[0])
+        self["description"] = Commit._code("\n".join(msg[1:])) if len(msg) > 1 else ""
+    
+    @staticmethod
+    def _code(text, coding=CODING):
+        return text.encode(CODING, "replace").decode(CODING)
     
     def __str__(self): 
         """View the commit in the terminal."""

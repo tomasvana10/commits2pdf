@@ -53,6 +53,7 @@ MARGIN = 50
 """For the fpdf PDF implementation"""
 RECURSION_ERROR = "An error occured when using the gen2b renderer. Please try " \
                   "adding the -gen2a flag to your console command and try again."
+CODING = "latin-1"
 TITLE_FONT = ["Arial", "B", 36]
 SUBTITLE_FONT = ["Arial", "", 30]
 MARGIN_FONT = ["Arial", "I", 8]
