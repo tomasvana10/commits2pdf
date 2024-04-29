@@ -1,5 +1,5 @@
 # commits2pdf
-Visualise a GitHub repo's commit history in PDF form via the command-line
+Visualise a GitHub repository's commit history in PDF form via the command-line
 <br><br>
 ## Dependencies
 `pycairo`<br>
@@ -14,16 +14,20 @@ Make a virtual environment (recommended)
 pip install virtualenv OR pip3 install virtualenv
 python -m venv venv OR python3 -m venv venv
 ON MACOS/UNIX: source venv/bin/activate
-ON WINDOW: venv\scripts\activate
+ON WINDOWS: venv\scripts\activate
 ```
 
-Install the package:
+Install the package in your system directory/virtual environment:
 ```
-pip install commits2pdf OR pip3 install commits2pdf
+pip install -U commits2pdf OR pip3 install -U commits2pdf
 ```
-**Scroll down for usage information**.
+OR, install the package in your home directory (good if you aren't using a virtual environment):
+```
+pip install --user -U commits2pdf
+```
 
-If you encounter errors with building `pycairo`, click [here](https://stackoverflow.com/a/76175684/23245953)
+
+**If you encounter errors with building `pycairo`, click [here](https://stackoverflow.com/a/76175684/23245953)**
 <br><br>
 ## Command-line parameters
 ```
@@ -67,21 +71,18 @@ If you encounter errors with building `pycairo`, click [here](https://stackoverf
 <br>
 
 ## Usage
-**See usage info in the command-line**:
-Run `c2p -h`
-
-<br>**Simple usage**:
+<br>**Simple usage - what you will be using the most**:
 ```
 c2p -O tomasvana10
 ```
-_Explanation_: Run the commmits2pdf cli tool in the current directory (assuming it is a repository). The owner name must be provided in all cases.
+_Explanation_: Run the CLI tool in the current directory (assuming it is a Git repository). The owner name must be provided in all cases.
 
 <br>**Advanced usage example #1**:
 ```
 c2p -O tomasvana10 -rp ../seriescalculator_sdd -a person@email.com,other_person@gmail.com -s 2024-11-30 -e 2024-12-30 -b other_branch -d
 ```
 _Explanation_: 
-1. Override the default repository path with the ``seriescalculator_sdd`` folder in the parent directory
+1. Override the default repository path (``-rp ..\seriescalculator_sdd``) with a folder in the parent directory.
 2. Look for specific commit emails (separated by commas)
 3. Search for commits from the -s date until the -e date
 4. Search for commits only made to `other_branch`
@@ -160,5 +161,3 @@ _Explanation_: Create the repo you have specified and make the PDF. This repo is
 
 **gen2 commit page in dark mode**<br>
 <img src="https://github.com/tomasvana10/commits2pdf/assets/124552709/a9fd3341-e661-4355-91e7-0dc3182e7239" alt="gen2 pdf commit page dark" width=561.12>
-
-
