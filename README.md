@@ -1,3 +1,11 @@
+[![Tests](https://github.com/tomasvana10/commits2pdf/actions/workflows/tox_tests.yml/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/tox_tests.yml)
+[![CodeQL](https://github.com/tomasvana10/commits2pdf/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/github-code-scanning/codeql)
+[![Publish to PyPI.org](https://github.com/tomasvana10/commits2pdf/actions/workflows/publish.yml/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/publish.yml)
+[![Issues](https://img.shields.io/github/issues-raw/tomasvana10/commits2pdf.svg?maxAge=25000)](https://github.com/tomasvana10/commits2pdf/issues)
+[![Release)](https://img.shields.io/github/v/release/tomasvana10/commits2pdf?logo=github)](https://github.com/tomasvana10/commits2pdf/releases/latest)
+[![PyPI version](https://img.shields.io/pypi/v/commits2pdf?style=flat-square)](https://pypi.org/project/commits2pdf/)
+![Licence](https://img.shields.io/badge/licence-MIT-green?style=flat?logo=licence)
+
 # commits2pdf
 Visualise a GitHub repository's commit history in PDF form via the command-line
 <br><br>
