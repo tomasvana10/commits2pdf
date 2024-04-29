@@ -6,3 +6,4 @@ tempCodeRunnerFile.python
 build
 dist
 commits2pdf.egg-info
+.ruff_cache
