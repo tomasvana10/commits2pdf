@@ -1,47 +1,62 @@
 import re
 
-
 """Regex for arg parser"""
 DATE = re.compile(
     r"^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$"
-) # YYYY/m/d or YYYY/mm/dd
+)  # YYYY/m/d or YYYY/mm/dd
 
 EMAILS = re.compile(
     r"^([\w+-.%]+@[\w.-]+\.[A-Za-z]{2,4})(,[\w+-.%]+@[\w.-]+\.[A-Za-z]{2,4})*$"
-) # usr@email.com or usr@email.com,user2@email.com, etc
+)  # usr@email.com or usr@email.com,user2@email.com, etc
 
 QUERY = re.compile(
     r"^\s*(?:[^,\s]+(?:\s*,\s*[^,\s]+)*)?\s*$"
-    ) # value1,value2 etc or value1 (can have leading/trailing whitespace)
+)  # value1,value2 etc or value1 (can have leading/trailing whitespace)
 
 # Other stuff for arg parser
-USAGE_INFO = "Simply run ``c2p -O <owner_name>`` in the command-line to generate "\
-             "a PDF of your repo's commit history (assuming your current "\
-             "directory is a repository). Run commits2pdf -h for more information."
-INVALID_ARG_WARNING = "Invalid {} format. Run commits2pdf -h for more information."
-CANNOT_USE_SCALE_WARNING = "You cannot set scaling when using the gen1 PDF " \
-                             "generator."
+USAGE_INFO = (
+    "Simply run ``c2p -O <owner_name>`` in the command-line to generate "
+    "a PDF of your repo's commit history (assuming your current "
+    "directory is a repository). Run commits2pdf -h for more information."
+)
+INVALID_ARG_WARNING = (
+    "Invalid {} format. Run commits2pdf -h for more information."
+)
+CANNOT_USE_SCALE_WARNING = (
+    "You cannot set scaling when using the gen1 PDF " "generator."
+)
 
 
 """Handling the processing of the repository"""
-REPO_ALREADY_EXISTS_WARNING = "The repository you are cloning from already "\
-                              "exists, so it will be accessed normally."
-DETACHED_BRANCH_ERROR = "The repository you are cloning from already exists, "\
-                        "but the branch you specified ({}) is detached."
-BRANCH_ALREADY_EXISTS_WARNING = "The branch you specified ({}) does not exist. " \
-                                "Selecting the active branch ({}) instead."
-INVALID_REPO_ERROR = "The repository {} does not exist or is invalid. " \
-                     "Attempting to delete tree..."
+REPO_ALREADY_EXISTS_WARNING = (
+    "The repository you are cloning from already "
+    "exists, so it will be accessed normally."
+)
+DETACHED_BRANCH_ERROR = (
+    "The repository you are cloning from already exists, "
+    "but the branch you specified ({}) is detached."
+)
+BRANCH_ALREADY_EXISTS_WARNING = (
+    "The branch you specified ({}) does not exist. "
+    "Selecting the active branch ({}) instead."
+)
+INVALID_REPO_ERROR = (
+    "The repository {} does not exist or is invalid. "
+    "Attempting to delete tree..."
+)
 INVALID_REPO_ERROR_2 = "Invalid git repository. Exiting..."
 
 
 """Handling the filtering of the repository's commits"""
 FILTER_INFO = "Filtered {} commit(s) from {} existing commit(s) based on {}."
 N_COMMITS_INFO = "Selecting n {} number of commits ({})."
-N_COMMITS_WARN = "{} n number of commits ({}) could not be selected as it is " \
-                 "greater than or equal to the current amount of commits ({})."
-GATHERED_COMMITS_INFO = "Gathered {} commit(s) based on since, until and " \
-                        "branch filters."
+N_COMMITS_WARN = (
+    "{} n number of commits ({}) could not be selected as it is "
+    "greater than or equal to the current amount of commits ({})."
+)
+GATHERED_COMMITS_INFO = (
+    "Gathered {} commit(s) based on since, until and " "branch filters."
+)
 
 
 """For the pycairo PDF implementation"""
@@ -51,8 +66,10 @@ MARGIN = 50
 
 
 """For the fpdf PDF implementation"""
-RECURSION_ERROR = "An error occured when using the gen2b renderer. Please try " \
-                  "adding the -gen2a flag to your console command and try again."
+RECURSION_ERROR = (
+    "An error occured when using the gen2b renderer. Please try "
+    "adding the -gen2a flag to your console command and try again."
+)
 CODING = "latin-1"
 TITLE_FONT = ["Arial", "B", 36]
 SUBTITLE_FONT = ["Arial", "", 30]
@@ -70,23 +87,23 @@ MARGIN_TB = 25.4
 CAIRO_LIGHT = {
     "background": (1, 1, 1),
     "text": (0, 0, 0),
-    "diff_url": (0, 0, 1)
+    "diff_url": (0, 0, 1),
 }
 
 CAIRO_DARK = {
     "background": (0.2, 0.2, 0.2),
     "text": (0.9, 0.9, 0.9),
-    "diff_url": (0.6, 0.6, 1)
+    "diff_url": (0.6, 0.6, 1),
 }
 
 FPDF_LIGHT = {
     "background": (255, 255, 255),
     "text": (0, 0, 0),
-    "diff_url": (0, 0, 255)
+    "diff_url": (0, 0, 255),
 }
 
 FPDF_DARK = {
     "background": (51, 51, 51),
     "text": (229, 229, 229),
-    "diff_url": (123, 127, 232)
+    "diff_url": (123, 127, 232),
 }
