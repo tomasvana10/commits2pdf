@@ -8,6 +8,8 @@
 
 # commits2pdf
 Visualise a GitHub repository's commit history in PDF form via the command-line
+---
+![ezgif-pdf-tutorial](https://github.com/tomasvana10/commits2pdf/assets/124552709/fcc4b5da-2326-4405-80fe-cf984f61129c)
 <br><br>
 ## Dependencies
 `pycairo`<br>
