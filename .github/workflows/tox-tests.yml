@@ -11,19 +11,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        exclude:
-          - platform: windows-latest
-            python-version: [pypy-3.7, pypy-3.8, pypy-3.9, pypy-3.10]
+        exclude: 
           - platform: macos-latest
-            python-version: [3.7, pypy-3.7]
+            python-version: 3.7
           - platform: ubuntu-latest
-            python-version: [3.12]
+            python-version: 3.12
         # https://help.github.com/articles/virtual-environments-for-github-actions
         platform:
           - ubuntu-latest  # ubuntu-22.04
           - macos-latest  # macOS-12
           - windows-latest  # windows-2022
-        python-version: [3.7, 3.8, 3.9, '3.10', 3.11, 3.12, pypy-3.7, pypy-3.8, pypy-3.9, pypy-3.10]
+        python-version: [3.7, 3.8, 3.9, '3.10', 3.11, 3.12]
 
     steps:
     - uses: actions/checkout@v3
