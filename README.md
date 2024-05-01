@@ -30,7 +30,7 @@ Install the package in your system directory/virtual environment:
 ```
 pip install -U commits2pdf OR pip3 install -U commits2pdf
 ```
-OR, install the package in your home directory (good if you aren't using a virtual environment):
+OR, install the package in your home directory if you aren't using a virtual environment:
 ```
 pip install --user -U commits2pdf
 ```
@@ -46,12 +46,13 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
-                        Directory path to your PDF output. Set to "." by default. Will be created if it does not exist. Example: -o ./work/my_pdfs
+                        Directory path to your PDF output. Set to "." (your current directory) by default. Will be
+                        created if it does not exist. Example: -o ./work/my_pdfs
   -b BRANCH, --branch BRANCH
                         The repository branch. Set to "main" by default.
   -a AUTHORS, --authors AUTHORS
-                        Filter commits from a comma-separated list of authors. Format: <author@email.com> OR <author1@email.com,author2@email.com> etc. Set to all authors by
-                        default.
+                        Filter commits from a comma-separated list of authors. Format: <author@email.com> OR
+                        <author1@email.com,author2@email.com> etc. Set to all authors by default.
   -s START_DATE, --start_date START_DATE
                         Filter from start date of commits. Format: YYYY-mm-dd or YYYY-m-d. Example: 2023-12-05
   -e END_DATE, --end_date END_DATE
@@ -65,15 +66,16 @@ options:
   -gen2a, --pdf_gen_2a  The first PDF rendering implementation with ``fpdf``.
   -gen2b, --pdf_gen_2b  The second PDF rendering implementation with ``pycairo``. The default option.
   -qa QUERIES_ANY, --query-any QUERIES_ANY
-                        Select the commits whose title OR description match ANY part of your query. Format: "<query1>" OR "<query1,query2>" etc. Note: queries can have leading or    
-                        trailing whitespace.
+                        Select the commits whose title OR description match ANY part of your query. Format: "<query1>"
+                        OR "<query1,query2>" etc. Note: queries can have leading or trailing whitespace.
   -QA QUERIES_ALL, --query-all QUERIES_ALL
-                        Select the commits whose title OR description match ALL parts of your query. Format: "<query1>" OR "<query1,query2>" etc. Note: queries can have leading or   
-                        trailing whitespace.
+                        Select the commits whose title OR description match ALL parts of your query. Format:
+                        "<query1>" OR "<query1,query2>" etc. Note: queries can have leading or trailing whitespace.
   -rp RPATH, --repo-path RPATH
-                        Path to your repository directory. Set to "." by default.
+                        Path to your repository directory. Set to "." (your current directory) by default.
   -fc RNAME, --repo-from-clone RNAME
-                        Clone a repo into the working directory and generate the commits PDF from it automatically. Format: <repo name> (case insensitive).
+                        Clone a repo into the working directory and generate the commits PDF from it automatically.
+                        Format: <repo name> (case insensitive).
   -nnc NEWEST_N_COMMITS, --newest-n-commits NEWEST_N_COMMITS
                         Select the newest n number amount of commits to include after filtering.
   -onc OLDEST_N_COMMITS, --oldest-n-commits OLDEST_N_COMMITS
@@ -151,7 +153,7 @@ _Explanation_: Create the repo you have specified and make the PDF. This repo is
 
 ### fpdf (gen2b - Default)
 + Same as gen2a but with perfectly accurate page breaking
-- Slow when generating large amounts of commits (generally, it is a good idea to switch to gen2a when drawing over 5000 commits)
+- Slow when generating large amounts of commits (generally, it is a good idea to switch to gen2a (with the `-gen2a` argument) when drawing over 5000 commits)
 
 <br><br>
 ## Gallery
