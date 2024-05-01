@@ -1,14 +1,14 @@
-"""Console entry point for ``commits2pdf``. Uses the ``argparse`` module to 
-handle arguments. Imports a PDF generation implementation from this package 
+"""Console entry point for ``commits2pdf``. Uses the ``argparse`` module to
+handle arguments. Imports a PDF generation implementation from this package
 (either ``pycairo`` or ``fpdf``) based on the users input.
 """
 
-from argparse import ArgumentParser, Namespace
+from argparse import Namespace
 from datetime import datetime
 from os import path
 from re import match
-from typing import Dict, List, Tuple, Union
 
+from .args import parser
 from .commits import Commits
 from .constants import (
     CAIRO_DARK,
@@ -19,8 +19,8 @@ from .constants import (
     FPDF_DARK,
     FPDF_LIGHT,
     INVALID_ARG_WARNING,
+    INVALID_BASENAME_WARNING,
     QUERY,
-    USAGE_INFO,
 )
 from .logger import logger
 
@@ -29,169 +29,6 @@ def main() -> None:
     """Parses arguments, provides warnings, and collects the commits based on
     the arguments using the ``Commits`` class.
     """
-    # General arguments group
-    parser = ArgumentParser(
-        description="Commits to PDF", prog="commits2pdf", epilog=USAGE_INFO
-    )
-    parser.add_argument(
-        "-O",
-        "--owner",
-        dest="owner",
-        required=True,
-        help="The owner of the git repository. Required.",
-    )
-    parser.add_argument(
-        "-o",
-        "--output",
-        dest="output",
-        default=".",
-        help='Path to your PDF output. Set to "." by default.',
-    )
-    parser.add_argument(
-        "-b",
-        "--branch",
-        dest="branch",
-        default="main",
-        type=str,
-        help='The repository branch. Set to "main" by default.',
-    )
-    parser.add_argument(
-        "-a",
-        "--authors",
-        dest="authors",
-        help="Filter commits from a comma-separated list of authors. Format: "
-        "<author@email.com> OR <author1@email.com,author2@email.com> etc. "
-        "Set to all authors by default.",
-    )
-    parser.add_argument(
-        "-s",
-        "--start_date",
-        dest="start_date",
-        help="Filter from start date of commits. Format: YYYY-mm-dd or YYYY-m-d. "
-        "Example: 2023-12-05",
-    )
-    parser.add_argument(
-        "-e",
-        "--end_date",
-        dest="end_date",
-        help="Filter to end date of commits. Format: YYYY-mm-dd or YYYY-m-d.  "
-        "Example: 2023-12-05",
-    )
-    parser.add_argument(
-        "-r",
-        "--reverse",
-        dest="reverse",
-        action="store_true",
-        help="Output the commits from newest to oldest. Set to oldest to newest "
-        "by default",
-    )
-    parser.add_argument(
-        "-d",
-        "--dark",
-        dest="dark",
-        action="store_true",
-        help='Toggle dark mode for the output PDF. Set to "light" by default.',
-    )
-    parser.add_argument(
-        "-po",
-        "--prevent-open",
-        dest="prevent_open",
-        action="store_true",
-        help="Prevent the program from automatically opening the directory the "
-        "PDF was created in.",
-    )
-    parser.add_argument(
-        "-sc",
-        "--scaling",
-        dest="scaling",
-        type=float,
-        default=1.0,
-        help="Set the scaling of the output PDF. Only available with gen2a and gen2b.",
-    )
-
-    # Group for the selection of a PDF generation implementation
-    gen_group = parser.add_mutually_exclusive_group()
-    gen_group.add_argument(
-        "-gen1",
-        "--pdf_gen_1",
-        action="store_true",
-        dest="gen1",
-        help="PDF rendering implementation with ``pycairo``.",
-    )
-    gen_group.add_argument(
-        "-gen2a",
-        "--pdf_gen_2a",
-        action="store_true",
-        dest="gen2a",
-        help="The first PDF rendering implementation with ``fpdf``.",
-    )
-    gen_group.add_argument(
-        "-gen2b",
-        "--pdf_gen_2b",
-        action="store_true",
-        dest="gen2b",
-        help="The second PDF rendering implementation with ``pycairo``. The "
-        "default option.",
-    )
-
-    # Group for either an AND or OR query
-    query_group = parser.add_mutually_exclusive_group()
-    query_group.add_argument(
-        "-qa",
-        "--query-any",
-        dest="queries_any",
-        help="Select the commits whose title OR description match ANY part of "
-        'your query. Format: "<query1>" OR "<query1,query2>" etc. Note: '
-        "queries can have leading or trailing whitespace.",
-    )
-    query_group.add_argument(
-        "-QA",
-        "--query-all",
-        dest="queries_all",
-        help="Select the commits whose title OR description match ALL parts of "
-        'your query. Format: "<query1>" OR "<query1,query2>" etc. Note: '
-        "queries can have leading or trailing whitespace.",
-    )
-
-    # Group for specifying either a path to a git repo or the name of the repo
-    # to clone from
-    repo_group = parser.add_mutually_exclusive_group()
-    repo_group.add_argument(
-        "-rp",
-        "--repo-path",
-        dest="rpath",
-        default=".",
-        type=str,
-        help='Path to your repository directory. Set to "." by default.',
-    )
-    repo_group.add_argument(
-        "-fc",
-        "--repo-from-clone",
-        dest="rname",
-        type=str,
-        help="Clone a repo into the working directory and generate the commits "
-        "PDF from it automatically. Format: <repo name> (case insensitive).",
-    )
-
-    # Group for selecting either the newest or oldest n number of commits
-    n_commits_group = parser.add_mutually_exclusive_group()
-    n_commits_group.add_argument(
-        "-nnc",
-        "--newest-n-commits",
-        dest="newest_n_commits",
-        type=int,
-        help="Select the newest n number amount of commits to include after "
-        "filtering.",
-    )
-    n_commits_group.add_argument(
-        "-onc",
-        "--oldest-n-commits",
-        dest="oldest_n_commits",
-        type=int,
-        help="Select the oldest n number amount of commits to include after "
-        "filtering.",
-    )
-
     args: Namespace = parser.parse_args()
     (
         appearance,
@@ -207,24 +44,8 @@ def main() -> None:
         scaling,
     ) = _handle_arguments(args)
 
-    # Log some warnings based on where the user is using the --repo-from-clone
-    # option just accessing a preexisting git repo
-    if args.rname:
-        logger.warn(
-            "When using -fc or --repo-from-clone: Entering an invalid "
-            "--owner arg will result in an error."
-        )
     if args.rpath and not args.rname:
-        logger.warn(
-            "When accessing a repo normally with -rp: Entering an "
-            "invalid --owner arg will result in invalid diff links in "
-            "the output PDF."
-        )
-        logger.warn(
-            "If the directory name of the repo you are accessing has "
-            "been renamed, invalid diff links in the output PDF may be "
-            "present."
-        )
+        logger.warn(INVALID_BASENAME_WARNING)
 
     commits = Commits(
         rpath=rpath,
@@ -275,13 +96,13 @@ def _make_pdf(
         gen_args.append(scaling)
 
     pdf = cls(*gen_args)
-    if hasattr(pdf, "recursion_err_flag"):
-        if pdf.recursion_err_flag:
+    if hasattr(pdf, "err_flag"):
+        if pdf.err_flag:
             return
- 
+
     p = path.abspath(args.output)
     logger.info(
-        f"{commits.rname}-commits_report.pdf successfully generated in {p}"
+        f"Wrote {path.join(p, commits.rname)}-commits_report.pdf successfully!"
     )
 
     if not args.prevent_open:
@@ -309,7 +130,7 @@ def _open_pdf(args, p) -> None:
                 os_system("xdg-open %s" % p)
 
 
-def _handle_arguments(args: Namespace) -> Tuple[Union[None, str, List[str]]]:
+def _handle_arguments(args: Namespace) -> tuple[None | str | list[str]]:
     """Process arguments through some conditions and regex matching to ensure
     they are valid. Raise errors if they are not valid.
     """
@@ -328,7 +149,7 @@ def _handle_arguments(args: Namespace) -> Tuple[Union[None, str, List[str]]]:
         if not match(EMAILS, args.authors):
             logger.error(INVALID_ARG_WARNING.format("email"))
             exit(1)
-        authors: List[str] = args.authors.split(",")
+        authors: list[str] = args.authors.split(",")
 
     if args.start_date:
         if not match(DATE, args.start_date):
@@ -345,16 +166,16 @@ def _handle_arguments(args: Namespace) -> Tuple[Union[None, str, List[str]]]:
         if not match(QUERY, args.queries_any):
             logger.error(INVALID_ARG_WARNING.format("query"))
             exit(1)
-        queries_any: List[str] = args.queries_any.split(",")
+        queries_any: list[str] = args.queries_any.split(",")
     elif args.queries_all:
         if not match(QUERY, args.queries_all):
             logger.error(INVALID_ARG_WARNING.format("query"))
             exit(1)
-        queries_all: List[str] = args.queries_all.split(",")
+        queries_all: list[str] = args.queries_all.split(",")
 
     if args.gen1:
         gen, mode = "gen1", None
-        appearance: Dict[str, Tuple[int]] = (
+        appearance: dict[str, tuple[int]] = (
             CAIRO_LIGHT if not args.dark else CAIRO_DARK
         )
         if args.scaling:
@@ -363,7 +184,7 @@ def _handle_arguments(args: Namespace) -> Tuple[Union[None, str, List[str]]]:
         gen, mode = (
             ("gen2a", "stable") if args.gen2a else ("gen2b", "unstable")
         )
-        appearance: Dict[str, Tuple[int]] = (
+        appearance: dict[str, tuple[int]] = (
             FPDF_LIGHT if not args.dark else FPDF_DARK
         )
         scaling = args.scaling

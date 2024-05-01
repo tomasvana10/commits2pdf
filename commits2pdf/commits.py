@@ -1,21 +1,29 @@
 from datetime import datetime
 from os import path
 from shutil import rmtree
-from typing import Dict, List, Optional, Union
+from typing import Optional
 
-from git import GitCommandError, InvalidGitRepositoryError, Repo
+from git import (
+    GitCommandError,
+    InvalidGitRepositoryError,
+    NoSuchPathError,
+    Repo,
+)
 
 from .constants import (
-    BRANCH_ALREADY_EXISTS_WARNING,
+    CLONING_REPO_INFO,
     CODING,
     DETACHED_BRANCH_ERROR,
     FILTER_INFO,
     GATHERED_COMMITS_INFO,
-    INVALID_REPO_ERROR,
-    INVALID_REPO_ERROR_2,
+    INVALID_GIT_REPO_ERROR,
     N_COMMITS_INFO,
-    N_COMMITS_WARN,
+    N_COMMITS_WARNING,
+    NONEXISTING_BRANCH_WARNING,
+    NONEXISTING_OR_INVALID_REPO_ERROR,
+    NONEXISTING_REPO_ERROR,
     REPO_ALREADY_EXISTS_WARNING,
+    UNEXPECTED_BUG_ERROR,
 )
 from .logger import logger
 
@@ -31,31 +39,30 @@ class Commits(object):
         self.owner: str = kwargs["owner"]
         self.url: Optional[str] = kwargs["url"]
         self.branch: Optional[str] = kwargs["branch"]
-        self.authors: Optional[List[str]] = kwargs["authors"]
+        self.authors: Optional[list[str]] = kwargs["authors"]
         self.start_date: Optional[datetime] = kwargs["start_date"]
         self.end_date: Optional[datetime] = kwargs["end_date"]
         self.reverse: Optional[bool] = kwargs["reverse"]
         self.newest_n_commits: Optional[int] = kwargs["newest_n_commits"]
         self.oldest_n_commits: Optional[int] = kwargs["oldest_n_commits"]
-        self.queries_any: Optional[List[str]] = kwargs["queries_any"]
-        self.queries_all: Optional[List[str]] = kwargs["queries_all"]
+        self.queries_any: Optional[list[str]] = kwargs["queries_any"]
+        self.queries_all: Optional[list[str]] = kwargs["queries_all"]
 
-        self.r: Repo = self.get_repo()
+        self.r: Repo = self._get_repo()
         if isinstance(self.r, Repo):  # Repo was successfully found, continue
-            self.init_repo_data()
-        elif self.r == "deltree":  # Buffered deletion due to errors in
-            # ``get_repo``.
+            self._init_repo_data()
+        elif self.r == "DELTREE":  # Perform buffered deletion due to errors in
+            # ``_get_repo``.
             rmtree(self.rpath, ignore_errors=True)
             self.err_flag = True
-        elif (
-            not self.r
-        ):  # ``get_repo`` returned nothing, so the repo could not
-            # be accessed
+        elif not self.r:  # ``_get_repo`` returned NoneType, so the repo could 
+                          # not be accessed
             self.err_flag = True
 
-    def init_repo_data(self) -> None:
-        """Find the repo name (preferrably from the remote), then sequentially
-        build the filtered commits from the commits of the repo.
+    def _init_repo_data(self) -> None:
+        """Find the repo name (preferrably from the remote), then
+        sequentially build the filtered commits from the commits of the
+        repo.
         """
         if len(self.r.remotes) > 0:  # Use remote name
             self.rname = self.r.remotes.origin.url.split(".git")[0].split("/")[
@@ -64,22 +71,25 @@ class Commits(object):
         else:  # No remote exists, just get the name of the directory
             self.rname = path.basename(self.r.working_tree_dir.split("/")[-1])
 
-        self.raw_commits: list[Repo.commit] = self.gather_commits()
-        self.commit_objects: list[Commit] = self.instantiate_commits()
-        self.filtered_commits: list[Commit] = self.filter_commits()
+        self.raw_commits: list[Repo.commit] = self._gather_commits()
+        self.commit_objects: list[Commit] = self._instantiate_commits()
+        self.filtered_commits: list[Commit] = self._filter_commits()
 
-    def get_repo(self) -> Union[Repo, str, None]:
-        """Access a repo, or clone it and then access it. Complete with extensive
-        error handling, ensuring a high chance of the user's requests being
-        adequately processed.
+    def _get_repo(self) -> Repo | str | None:
+        """Access a repo, or clone it and then access it, and update
+        ``self.branch`` if necessary. Complete with extensive error handling,
+        ensuring a high chance of the user's requests being processed.
         """
         if self.url:  # User wants to clone a repo
-            if path.exists(self.rpath) and path.isdir(
-                self.rpath
-            ):  # Repo may exist
+            if path.exists(self.rpath) and path.isdir(self.rpath):  # Repo may
+                                                                    # exist
                 if path.exists(path.join(self.rpath, ".git")):  # .git exists
                     logger.warn(REPO_ALREADY_EXISTS_WARNING)
-                    r = Repo(self.rpath)  # Attempt to access repo
+                    try:
+                        r = Repo(self.rpath)  # Attempt to access repo
+                    except NoSuchPathError:
+                        return logger.error(NONEXISTING_REPO_ERROR)
+
                     if self.branch:  # User is looking for specific branch
                         try:
                             b = r.active_branch
@@ -87,24 +97,25 @@ class Commits(object):
                             return logger.error(
                                 DETACHED_BRANCH_ERROR.format(self.branch)
                             )
+
                         if not str(b) == str(
                             self.branch
-                        ):  # Branch of existing
-                            # repo is not the
-                            # branch the user wants
+                        ):  # Branch of existing repo is not the branch the user wants
                             logger.warning(
-                                BRANCH_ALREADY_EXISTS_WARNING.format(
+                                NONEXISTING_BRANCH_WARNING.format(
                                     self.branch, b
                                 )
                             )
                             self.branch = b  # Update the branch to the repo's
-                            # active branch
+                                             # active branch
+
                     return r  # Repo was accessed with no problems
 
                 else:  # .git does not exist, delete the existing folder and
-                    # clone the repo
+                       # clone the repo
                     rmtree(self.rpath, ignore_errors=True)
                     try:
+                        logger.info(CLONING_REPO_INFO)
                         r = Repo.clone_from(
                             self.url,
                             self.rpath,
@@ -114,8 +125,8 @@ class Commits(object):
                     except GitCommandError as e:
                         if (
                             "remote branch" in str(e).casefold()
-                        ):  # User entered
-                            # invalid branch
+                        ):  # User entered invalid branch
+                            logger.info(CLONING_REPO_INFO)
                             r = Repo.clone_from(
                                 self.url, self.rpath, no_checkout=True
                             )
@@ -126,18 +137,23 @@ class Commits(object):
                                     DETACHED_BRANCH_ERROR.format(self.branch)
                                 )
                             logger.warning(
-                                BRANCH_ALREADY_EXISTS_WARNING.format(
+                                NONEXISTING_BRANCH_WARNING.format(
                                     self.branch, b
                                 )
                             )
                             self.branch = b  # Update the branch to the repo's
-                            # active branch
+                                             # active branch
                         else:  # Some other error occurred
-                            logger.error(INVALID_REPO_ERROR.format(self.url))
-                            return "deltree"
+                            logger.error(
+                                NONEXISTING_OR_INVALID_REPO_ERROR.format(
+                                    self.url
+                                )
+                            )
+                            return "DELTREE"
 
             else:  # Repo does not exist, just clone it
                 try:
+                    logger.info(CLONING_REPO_INFO)
                     r = Repo.clone_from(
                         self.url,
                         self.rpath,
@@ -146,6 +162,7 @@ class Commits(object):
                     )
                 except GitCommandError as e:
                     if "remote branch" in str(e).casefold():
+                        logger.info(CLONING_REPO_INFO)
                         r = Repo.clone_from(
                             self.url, self.rpath, no_checkout=True
                         )
@@ -156,14 +173,14 @@ class Commits(object):
                                 DETACHED_BRANCH_ERROR.format(self.branch)
                             )
                         logger.warning(
-                            BRANCH_ALREADY_EXISTS_WARNING.format(
-                                self.branch, b
-                            )
+                            NONEXISTING_BRANCH_WARNING.format(self.branch, b)
                         )
                         self.branch = b
                     else:  # Some other error occurred
-                        logger.error(INVALID_REPO_ERROR.format(self.url))
-                        return "deltree"
+                        logger.error(
+                            NONEXISTING_OR_INVALID_REPO_ERROR.format(self.url)
+                        )
+                        return "DELTREE"
 
         else:  # Just access the repo normally
             try:
@@ -176,36 +193,42 @@ class Commits(object):
                             DETACHED_BRANCH_ERROR.format(self.branch)
                         )
                     if not str(b) == str(self.branch):  # Branch of repo is not
-                        # the branch the user wants
+                                                        # the branch the user wants
                         logger.warning(
-                            BRANCH_ALREADY_EXISTS_WARNING.format(
-                                self.branch, b
-                            )
+                            NONEXISTING_BRANCH_WARNING.format(self.branch, b)
                         )
                         self.branch = b  # Update the branch to the repo's
-                        # active branch
+                                         # active branch
 
             except InvalidGitRepositoryError:
-                return logger.error(INVALID_REPO_ERROR_2)
+                return logger.error(INVALID_GIT_REPO_ERROR.format(self.rpath))
+            except NoSuchPathError:
+                return logger.error(NONEXISTING_REPO_ERROR)
 
         return r
 
-    def gather_commits(self) -> List[Repo.commit]:
+    def _gather_commits(self) -> list[Repo.commit]:
         """Find all the commits that match the user's since, until and branch
         specifications.
         """
-        commits = list(
-            self.r.iter_commits(  # If any of the params are NoneType, no prob!
-                since=self.start_date,
-                until=self.end_date,
-                rev=self.branch,
+        try:
+            commits = list(
+                self.r.iter_commits(  # If any of the params are NoneType, no prob!
+                    since=self.start_date,
+                    until=self.end_date,
+                    rev=self.branch,
+                )
             )
-        )
+        except Exception:
+            logger.error(UNEXPECTED_BUG_ERROR)
+            self.err_flag = True
+            exit(1)
+
         logger.info(GATHERED_COMMITS_INFO.format(len(commits)))
 
         return commits
 
-    def instantiate_commits(self) -> List[Dict[str, str]]:
+    def _instantiate_commits(self) -> list[dict[str, str]]:
         """Instantiate all the filtered ``Repo.commit`` objects into my own
         simple class that inherits from a dictionary.
         """
@@ -217,7 +240,7 @@ class Commits(object):
 
         return commit_objects
 
-    def filter_commits(self) -> List[dict]:
+    def _filter_commits(self) -> list[dict[str, str]]:
         """Process the Commit objects based on user-specified criteria such as
         authors and queries.
         """
@@ -262,7 +285,7 @@ class Commits(object):
                 )
             else:
                 logger.warn(
-                    N_COMMITS_WARN.format(
+                    N_COMMITS_WARNING.format(
                         "Newest", self.newest_n_commits, len(filtered_commits)
                     )
                 )
@@ -275,7 +298,11 @@ class Commits(object):
                     )
                 )
             else:
-                logger.warn(N_COMMITS_WARN("Oldest", self.oldest_n_commits))
+                logger.warn(
+                    N_COMMITS_WARNING.format(
+                        "Oldest", self.oldest_n_commits, len(filtered_commits)
+                    )
+                )
 
         step = -1 if not self.reverse else 1
         filtered_commits = filtered_commits[::step]
@@ -288,7 +315,7 @@ class Commit(dict):
 
     def __init__(
         self, owner: str, rname: str, branch: str, commit: Repo.commit
-    ):
+    ) -> None:
         """Assign commit data to the instance."""
         self["rname"] = rname
         self["branch"] = branch
@@ -316,10 +343,10 @@ class Commit(dict):
         )
 
     @staticmethod
-    def _code(text, coding=CODING):
+    def _code(text: str, coding: str = CODING) -> str:
         return text.encode(CODING, "replace").decode(CODING)
 
-    def __str__(self):
+    def __str__(self) -> str:
         """View the commit in the terminal."""
         return (
             "=============================\n"

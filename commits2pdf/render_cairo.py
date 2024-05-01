@@ -2,7 +2,6 @@ from datetime import datetime
 from os import path
 from textwrap import wrap
 from time import time
-from typing import Dict, List, Tuple
 
 from cairo import (
     FONT_SLANT_ITALIC,
@@ -12,8 +11,16 @@ from cairo import (
     Context,
     PDFSurface,
 )
+from progressbar import ETA, Bar, Percentage, ProgressBar
 
-from .constants import HEIGHT, MARGIN, WIDTH
+from .constants import (
+    GENERATING_PDF_INFO,
+    HEIGHT,
+    MARGIN,
+    WIDTH,
+    WRITING_PDF_INFO,
+)
+from .logger import logger
 
 
 class Cairo_PDF:
@@ -22,7 +29,7 @@ class Cairo_PDF:
         commits: object,
         output: str,
         filename: str,
-        appearance: Dict[str, Tuple[int]],
+        appearance: dict[str, tuple[int]],
     ) -> None:
         """Assign attributes for use across the instance and instantiate the
         core parts of a pycairo PDF.
@@ -35,6 +42,11 @@ class Cairo_PDF:
         )
         self.timestamp = datetime.fromtimestamp(int(time())).strftime(
             "%Y-%m-%d %H:%M:%S"
+        )
+        # Keep track of generation progress for the user
+        self._progress = ProgressBar(
+            maxval=len(self._commits.filtered_commits),
+            widgets=[Percentage(), Bar(), ETA()],
         )
 
         self._s = PDFSurface(path.join(output, filename), WIDTH, HEIGHT)
@@ -50,10 +62,21 @@ class Cairo_PDF:
         self.y += 40
 
         if len(self._commits.filtered_commits) > 0:
+            logger.info(GENERATING_PDF_INFO)
             self._draw_commits()
+            logger.info(
+                WRITING_PDF_INFO.format(
+                    self._output + " ..."
+                    if self._output != "."
+                    else "your current directory..."
+                )
+            )
+            self._s.finish()
 
     def _draw_commits(self) -> None:
         """Driver function to draw all the commits."""
+        counter: int = 0
+        self._progress.start()
         for commit in self._commits.filtered_commits:
             text = self._get_commit_text(commit)
             height = sum(len(t) for t in text) * 14 + 50
@@ -66,9 +89,11 @@ class Cairo_PDF:
                 self._draw_footer()
 
             self.draw_commit(commit, self.y, *text)
+            counter += 1
+            self._progress.update(counter)
             self.y += height + 50
 
-        self._s.finish()
+        self._progress.finish()
 
     def _set_font(self, t: str, font: str = "Arial") -> None:
         """Set the font face, consisting of the family, slant and weight."""
@@ -110,29 +135,29 @@ class Cairo_PDF:
 
     def _draw_rname(self, rname: str, y: int) -> None:
         """Draw the repository name."""
-        w_rname: List[str] = wrap(
+        w_rname: list[str] = wrap(
             f"Repository: {rname}", width=(WIDTH - MARGIN * 2) // 8
         )
         self._draw_wrapped_text(w_rname, y, 18, "b")
 
-    def _get_commit_text(self, commit: object) -> Tuple[List[str]]:
+    def _get_commit_text(self, commit: object) -> tuple[list[str]]:
         """Get the commit text for a commit and wrap it with a bunch of magic
         numbers.
         """
-        info: List[str] = wrap(
+        info: list[str] = wrap(
             commit["info"], width=(WIDTH - MARGIN * 2) // 6.5
         )
-        title: List[str] = wrap(
+        title: list[str] = wrap(
             commit["title"], width=(WIDTH - MARGIN * 2) // 8
         )
-        diff_url: List[str] = wrap(
+        diff_url: list[str] = wrap(
             commit["diff_url"], width=(WIDTH - MARGIN * 2) // 5
         )
 
-        desc_lines: List[str] = commit["description"].split("\n")
+        desc_lines: list[str] = commit["description"].split("\n")
         desc = []
         for line in desc_lines:
-            lines = wrap(line, width=(WIDTH - MARGIN * 2) // 5.075)
+            lines = wrap(line, width=(WIDTH - MARGIN * 2) // 5)
             desc.extend(lines)
             if len(lines) > 1:
                 desc.append("")
@@ -141,7 +166,7 @@ class Cairo_PDF:
 
     def _draw_wrapped_text(
         self,
-        lines: List[str],
+        lines: list[str],
         y: int,
         font_size: int,
         font_type: str,
@@ -161,7 +186,7 @@ class Cairo_PDF:
         return this_y + 15
 
     def draw_commit(
-        self, commit: object, y: int, *args: Tuple[List[str]]
+        self, commit: object, y: int, *args: tuple[list[str]]
     ) -> None:
         """Driver function for its own driver function idk."""
         new_y = self._draw_wrapped_text(

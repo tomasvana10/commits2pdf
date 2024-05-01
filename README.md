@@ -1,10 +1,10 @@
-[![Tests](https://github.com/tomasvana10/commits2pdf/actions/workflows/tox_tests.yml/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/tox_tests.yml)
-[![CodeQL](https://github.com/tomasvana10/commits2pdf/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/github-code-scanning/codeql)
-[![Publish to PyPI.org](https://github.com/tomasvana10/commits2pdf/actions/workflows/publish.yml/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/publish.yml)
-[![Issues](https://img.shields.io/github/issues-raw/tomasvana10/commits2pdf.svg?maxAge=25000)](https://github.com/tomasvana10/commits2pdf/issues)
-[![Release)](https://img.shields.io/github/v/release/tomasvana10/commits2pdf?logo=github)](https://github.com/tomasvana10/commits2pdf/releases/latest)
-[![PyPI version](https://img.shields.io/pypi/v/commits2pdf?style=flat-square)](https://pypi.org/project/commits2pdf/)
 ![Licence](https://img.shields.io/badge/licence-MIT-green?style=flat?logo=licence)
+[![PyPI version](https://img.shields.io/pypi/v/commits2pdf?style=flat-square)](https://pypi.org/project/commits2pdf/)
+[![Publish to PyPI.org](https://github.com/tomasvana10/commits2pdf/actions/workflows/publish.yml/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/publish.yml)
+[![Release)](https://img.shields.io/github/v/release/tomasvana10/commits2pdf?logo=github)](https://github.com/tomasvana10/commits2pdf/releases/latest)
+[![Issues](https://img.shields.io/github/issues-raw/tomasvana10/commits2pdf.svg?maxAge=25000)](https://github.com/tomasvana10/commits2pdf/issues)
+[![CodeQL](https://github.com/tomasvana10/commits2pdf/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/github-code-scanning/codeql)
+[![Tests](https://github.com/tomasvana10/commits2pdf/actions/workflows/tox-tests.yml/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/tox-tests.yml)
 
 # commits2pdf
 Visualise a GitHub repository's commit history in PDF form via the command-line
@@ -39,34 +39,36 @@ pip install --user -U commits2pdf
 <br><br>
 ## Command-line parameters
 ```
+positional arguments:
+  owner                 The owner of the git repository. Required.
+
+options:
   -h, --help            show this help message and exit
-  -O OWNER, --owner OWNER
-                        The owner of the git repository. Required.
   -o OUTPUT, --output OUTPUT
-                        Path to your PDF output. Set to "." by default.
+                        Directory path to your PDF output. Set to "." by default. Will be created if it does not exist. Example: -o ./work/my_pdfs
   -b BRANCH, --branch BRANCH
                         The repository branch. Set to "main" by default.
   -a AUTHORS, --authors AUTHORS
-                        Filter commits from a comma-separated list of authors. Format: <author@email.com> OR <author1@email.com,author2@email.com> etc. Set to all authors   
-                        by default.
+                        Filter commits from a comma-separated list of authors. Format: <author@email.com> OR <author1@email.com,author2@email.com> etc. Set to all authors by
+                        default.
   -s START_DATE, --start_date START_DATE
                         Filter from start date of commits. Format: YYYY-mm-dd or YYYY-m-d. Example: 2023-12-05
   -e END_DATE, --end_date END_DATE
                         Filter to end date of commits. Format: YYYY-mm-dd or YYYY-m-d. Example: 2023-12-05
   -r, --reverse         Output the commits from newest to oldest. Set to oldest to newest by default
   -d, --dark            Toggle dark mode for the output PDF. Set to "light" by default.
-  -po, --prevent-open   Prevent the program from automatically opening the directory the PDF was created in.
+  -po, --prevent-open   Prevent commits2pdf from automatically opening the directory the PDF was created in.
   -sc SCALING, --scaling SCALING
                         Set the scaling of the output PDF. Only available with gen2a and gen2b.
   -gen1, --pdf_gen_1    PDF rendering implementation with ``pycairo``.
   -gen2a, --pdf_gen_2a  The first PDF rendering implementation with ``fpdf``.
   -gen2b, --pdf_gen_2b  The second PDF rendering implementation with ``pycairo``. The default option.
   -qa QUERIES_ANY, --query-any QUERIES_ANY
-                        Select the commits whose title OR description match ANY part of your query. Format: "<query1>" OR "<query1,query2>" etc. Note: queries can have      
-                        leading or trailing whitespace.
+                        Select the commits whose title OR description match ANY part of your query. Format: "<query1>" OR "<query1,query2>" etc. Note: queries can have leading or    
+                        trailing whitespace.
   -QA QUERIES_ALL, --query-all QUERIES_ALL
-                        Select the commits whose title OR description match ALL parts of your query. Format: "<query1>" OR "<query1,query2>" etc. Note: queries can have     
-                        leading or trailing whitespace.
+                        Select the commits whose title OR description match ALL parts of your query. Format: "<query1>" OR "<query1,query2>" etc. Note: queries can have leading or   
+                        trailing whitespace.
   -rp RPATH, --repo-path RPATH
                         Path to your repository directory. Set to "." by default.
   -fc RNAME, --repo-from-clone RNAME
@@ -81,13 +83,13 @@ pip install --user -U commits2pdf
 ## Usage
 <br>**Simple usage - what you will be using the most**:
 ```
-c2p -O tomasvana10
+c2p tomasvana10
 ```
 _Explanation_: Run the CLI tool in the current directory (assuming it is a Git repository). The owner name must be provided in all cases.
 
 <br>**Advanced usage example #1**:
 ```
-c2p -O tomasvana10 -rp ../seriescalculator_sdd -a person@email.com,other_person@gmail.com -s 2024-11-30 -e 2024-12-30 -b other_branch -d
+c2p tomasvana10 -rp ../seriescalculator_sdd -a person@email.com,other_person@gmail.com -s 2024-11-30 -e 2024-12-30 -b other_branch -d
 ```
 _Explanation_: 
 1. Override the default repository path (``-rp ..\seriescalculator_sdd``) with a folder in the parent directory.
@@ -98,13 +100,13 @@ _Explanation_:
 
 <br>**Advanced usage example #2**
 ```
-c2p -O tomasvana10 -nnc 10 -r
+c2p tomasvana10 -nnc 10 -r
 ```
 _Explanation_: Display the newest ten commits (after any filtering) in reverse order (newest to oldest instead of the default, which is oldest to newest).
 
 <br>**Advanced usage example #3**
 ```
-c2p -O tomasvana10 -qa "javascript,test " -onc 5 -po -o ..
+c2p tomasvana10 -qa "javascript,test " -onc 5 -po -o ..
 ```
 _Explanation_: 
 1. Display the 5 oldest commits after querying the current repository's commits for either "javascript" OR "test "
@@ -115,7 +117,7 @@ _Explanation_:
 
 <br>**Advanced usage example #4**
 ```
-c2p -O tomasvana10 -QA "dev ,testing" -gen2a -sc 0.8
+c2p tomasvana10 -QA "dev ,testing" -gen2a -sc 0.8
 ```
 _Explanation_:
 1. Query the repo for both "dev " AND "testing"
@@ -126,39 +128,30 @@ _Explanation_:
 
 <br>**Clone the repo you want to document on-demand**:
 ```
-c2p -O tomasvana10 -fc some_repo_name
+c2p tomasvana10 -fc some_repo_name
 ```
 _Explanation_: Create the repo you have specified and make the PDF. This repo is always cloned into the current working directory.
 <br><br>
 ## PDF Generation implementations
 ### pycairo (gen1)
-- **Positives**
-  - Fast
-- **Negatives**
-  - Not scalable
-  - Occasional rendering inconsistencies
-  - Not as good looking at the other generation implementations
-  - No hyperlinks
-- **Sample use case**: You want to quickly generate a large amount of commits and do not care about the sizing of the PDF.
++ Fast
+- Looks like crap 
+- No hyperlinks, therefore the entire link to a commit's diff is displayed
+- Occasional bugs in rendering
 
 ### fpdf (gen2a)
-- **Positives**
-  - Fast
-  - Scalable
-  - Detailed title page
-  - Sleek design
-  - Hyperlinks
-  - Saves metadata
-- **Negatives**
-  - Inconsistent page breaks in some cases due to the difficulty of precalculating the height of a commit, a general limitation with this generation method.
-- **Sample use case**: You do not mind if your PDF has occasionally inconsistent spacing, but you want a nice design that can be generated very fast.
++ Fast
++ Can be scaled with the `-sc <float>` argument 
++ Sleek design
++ Information title page
++ Contains hyperlinks
++ Stores PDF metadata
+- Inconsistent page breaks, a general limitation with FPDF when trying to fit as many whole commits on a single page 
 
 ### fpdf (gen2b - Default)
-- **Positives**
-   - Same as gen2a but with consistent page breaks that do not leave any whitespace.
-- **Negatives**
-  - Slow when generating large 
-- **Sample use case**: You want to visualise a relatively small amount of commits in a PDF that is sleek and consistently-designed.
++ Same as gen2a but with perfectly accurate page breaking
+- Slow when generating large amounts of commits (generally, it is a good idea to switch to gen2a when drawing over 5000 commits)
+
 <br><br>
 ## Gallery
 **gen1 title page**<br>
