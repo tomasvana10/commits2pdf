@@ -12,7 +12,8 @@ Visualise a GitHub repository's commit history in PDF form via the command-line
 ## Dependencies
 `pycairo`<br>
 `GitPython`<br>
-`fpdf`
+`fpdf`<br>
+`progressbar`
 <br><br>
 ## Installation
 **Requires [pip](https://pip.pypa.io/en/stable/installation/)**
