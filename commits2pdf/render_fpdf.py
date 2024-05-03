@@ -4,10 +4,9 @@ from pickle import dumps, loads
 from time import time
 
 from fpdf import FPDF
-from progressbar import ETA, Bar, Percentage, ProgressBar
+from tqdm import tqdm
 
 from .constants import (
-    GENERATING_PDF_INFO,
     INFO_TEXT_FONT,
     MARGIN_FONT,
     MARGIN_LR,
@@ -20,10 +19,22 @@ from .constants import (
     TITLE_FONT,
     TITLE_PAGE_INFO_FONT,
     WRITING_PDF_INFO,
+    FPDF_DARK
 )
 from .logger import logger
 
+def footer():
+    pass
 
+def _beginpage_addon(func):
+    def wrapper(self, *args, **kwargs):
+        result = func(self, *args, **kwargs)
+        self.set_fill_color(*FPDF_DARK["background"])
+        self.rect(h=self.h, w=self.w, x=0, y=0, style="DF")
+        return result
+    return wrapper
+    
+    
 class FPDF_PDF:
     """PDF generation class implementing 2 methods of generation (``gen2a`` and
     ``gen2b``.
@@ -52,15 +63,12 @@ class FPDF_PDF:
             appearance,
             mode,
         )
-        # Keep track of generation progress for the user
-        self._progress = ProgressBar(
-            maxval=len(self._commits.filtered_commits),
-            widgets=[Percentage(), Bar(), ETA()],
-        )
-
-        self._p = FPDF()  # Contains the PDF data
+            
+        if self._ap["TYPE"] == "DARK": # Inject decorators to detect new page
+            FPDF._beginpage = _beginpage_addon(FPDF._beginpage)
+        self._p = FPDF()
+            
         self._configure_fpdf()
-        logger.info(GENERATING_PDF_INFO)
         self._prepare_and_draw()
         logger.info(
             WRITING_PDF_INFO.format(
@@ -98,17 +106,17 @@ class FPDF_PDF:
         self._p.add_page()
         self._draw_page_bg()
         self._draw_title_page()
-        self._p.set_auto_page_break(auto=True)
         if self._mode == "unstable":
             self.do_pre_vis: bool = True
             self._p.set_auto_page_break(auto=False)
         else:
             self.do_pre_vis: bool = False
+            self._p.set_auto_page_break(auto=True)
 
         if len(self._commits.filtered_commits) > 0:
             self._draw_commits()
 
-    def _draw_footer(self) -> None:
+    def footer(self) -> None:
         self._p.set_y(-1 * (MARGIN_TB / 2))
         self._set_font(*MARGIN_FONT)
         self._p.set_text_color(*self._ap["text"])
@@ -134,6 +142,25 @@ class FPDF_PDF:
         p = self._p if obj == "main" else obj
         p.set_font(args[0], args[1], args[2])
 
+    def _draw_newpage_commit(self, commit, no_divider=False):
+        """Draw a commit that cannot fit on the existing page."""
+        self.footer()
+        self._p.add_page()
+        self._draw_page_bg()
+        self._p.set_auto_page_break(auto=True, margin=MARGIN_TB)
+        self._p.footer = self.footer # Temporarily override the empty ``footer``
+                                     # method inherited from ``FPDF`` to 
+                                     # automatically generate a footer if this
+                                     # new commit spans more than a single page.
+        page_no_before_draw = self._p.page
+        self._draw_commit(commit, no_divider=no_divider)
+        self._p.set_auto_page_break(auto=False)
+        self._p.footer = footer # Set the footer method of ``self._p`` back to 
+                                # an empty method to prevent a recursion error
+                                # when cloning an instance of ``FPDF``.
+        if self._p.page > page_no_before_draw: 
+            self.footer()
+
     def _draw_commits(self) -> None:
         """Driver function to draw all the commits using either the
         pre-visualisation method or the commit height estimation method.
@@ -141,41 +168,34 @@ class FPDF_PDF:
         self._p.add_page()  # Draw separate to the title page
         self._draw_page_bg()
 
-        self._progress.start()
-        counter: int = 0
         # gen2b
         if self._mode == "unstable":
-            for commit in self._commits.filtered_commits:
+            for commit in tqdm(
+                self._commits.filtered_commits,
+                ncols=85,
+                desc="Generating",
+            ):
                 result = self._draw_commit(commit, pre_vis=True)
                 if result == "NEW_PAGE_OK":  # Break page
-                    self._draw_footer()
-                    self._p.add_page()
-                    self._draw_page_bg()
-                    self._draw_commit(commit)
+                    self._draw_newpage_commit(commit)
                 elif (
                     result == "NEW_PAGE_OK_BUT_NO_DIVIDER"
-                ):  # The divider just
-                    # barely doesn't fit
-                    self._draw_commit(commit, no_divider=True)
+                ):  # The divider just barely doesn't fit
+                    self._draw_newpage_commit(commit, no_divider=True)
                 else:  # No need to break the page
                     self._draw_commit(commit)
 
-                counter += 1
-                self._progress.update(counter)
-
         # gen2a
         elif self._mode == "stable":
-            for commit in self._commits.filtered_commits:
+            for commit in tqdm(
+                self._commits.filtered_commits,
+                ncols=85,
+                desc="Generating",
+            ):
                 if self._commit_exceeds_size(commit):  # Break page
-                    self._draw_footer()
-                    self._p.add_page()
-                    self._draw_page_bg()
-                self._draw_commit(commit)
-
-                counter += 1
-                self._progress.update(counter)
-
-        self._progress.finish()
+                    self._draw_newpage_commit(commit)
+                else:
+                    self._draw_commit(commit)
 
     def _draw_commit(
         self,
@@ -315,6 +335,13 @@ class FPDF_PDF:
         self._p.multi_cell(
             0,
             self._p.font_size * 1.5,
+            align="C",
+            txt=f"Branch: {self._commits.branch}"
+        )
+        self._p.ln()
+        self._p.multi_cell(
+            0,
+            self._p.font_size * 1.5,
             txt=f"Newest n commits: "
             f"{self._commits.newest_n_commits} | Oldest n commits: "
             f"{self._commits.oldest_n_commits}",
@@ -325,16 +352,16 @@ class FPDF_PDF:
             0,
             self._p.font_size * 1.5,
             align="C",
-            txt=f"AND queries: "
-            f"{', '.join(self._commits.queries_all) if self._commits.queries_all else 'None'}",
+            txt=f"Including: "
+            f"{', '.join(self._commits.include) if self._commits.include else 'No specification'}",
         )
         self._p.ln()
         self._p.multi_cell(
             0,
             self._p.font_size * 1.5,
             align="C",
-            txt=f"OR queries: "
-            f"{', '.join(self._commits.queries_any) if self._commits.queries_any else 'None'}",
+            txt=f"Excluding: "
+            f"{', '.join(self._commits.exclude) if self._commits.exclude else 'No specification'}",
         )
         self._p.ln()
         self._p.multi_cell(

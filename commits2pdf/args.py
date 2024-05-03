@@ -17,8 +17,11 @@ parser.add_argument(
     "--output",
     dest="output",
     default=".",
-    help='Directory path to your PDF output. Set to "." (your current directory)'
-    " by default. Will be created if it does not exist. Example: -o ./work/my_pdfs",
+    help=(
+        'Directory path to your PDF output. Set to "." (your current'
+        " directory) by default. Will be created if it does not exist."
+        " Example: -o ./work/my_pdfs"
+    ),
 )
 parser.add_argument(
     "-b",
@@ -32,35 +35,42 @@ parser.add_argument(
     "-a",
     "--authors",
     dest="authors",
-    help="Filter commits from a comma-separated list of authors. Format: "
-    "<author@email.com> OR <author1@email.com,author2@email.com> etc. "
-    "Set to all authors by default.",
+    help=(
+        "Filter commits from a comma-separated list of authors. Format: "
+        "<author@email.com> OR <author1@email.com,author2@email.com> etc. "
+        "Set to all authors by default."
+    ),
 )
 parser.add_argument(
     "-s",
     "--start_date",
     dest="start_date",
-    help="Filter from start date of commits. Format: YYYY-mm-dd or YYYY-m-d. "
-    "Example: 2023-12-05",
+    help=(
+        "Filter from start date of commits. Format: YYYY-mm-dd or YYYY-m-d. "
+        "Example: 2023-12-05"
+    ),
 )
 parser.add_argument(
     "-e",
     "--end_date",
     dest="end_date",
-    help="Filter to end date of commits. Format: YYYY-mm-dd or YYYY-m-d.  "
-    "Example: 2023-12-05",
+    help=(
+        "Filter to end date of commits. Format: YYYY-mm-dd or YYYY-m-d.  "
+        "Example: 2023-12-05"
+    ),
 )
 parser.add_argument(
     "-r",
     "--reverse",
     dest="reverse",
     action="store_true",
-    help="Output the commits from newest to oldest. Set to oldest to newest "
-    "by default",
+    help=(
+        "Output the commits from newest to oldest. Set to oldest to newest "
+        "by default"
+    ),
 )
 parser.add_argument(
-    "-d",
-    "--dark",
+    "-dark",
     dest="dark",
     action="store_true",
     help='Toggle dark mode for the output PDF. Set to "light" by default.',
@@ -70,8 +80,10 @@ parser.add_argument(
     "--prevent-open",
     dest="prevent_open",
     action="store_true",
-    help="Prevent commits2pdf from automatically opening the directory the "
-    "PDF was created in.",
+    help=(
+        "Prevent commits2pdf from automatically opening the directory the "
+        "PDF was created in."
+    ),
 )
 parser.add_argument(
     "-sc",
@@ -79,7 +91,31 @@ parser.add_argument(
     dest="scaling",
     type=float,
     default=1.0,
-    help="Set the scaling of the output PDF. Only available with gen2a and gen2b.",
+    help=(
+        "Set the scaling of the output PDF. Only available with gen2a and"
+        " gen2b."
+    ),
+)
+parser.add_argument(
+    "-in",
+    "--include",
+    dest="include",
+    help=(
+        "Include commits with the given string sequences in their title or"
+        ' description. Format: "<string1>" OR "<string1,string2>". Whitespace'
+        " and sensitive and case insensitive. NOTE: This query is performed"
+        " BEFORE excluding commits."
+    ),
+)
+parser.add_argument(
+    "-ex",
+    "--exclude",
+    dest="exclude",
+    help=(
+        "Exclude commits with the given string sequences in their title or"
+        ' description. Format: "<string1>" OR "<string1,string2>". Whitespace'
+        " and sensitive and case insensitive."
+    ),
 )
 
 # Group for the selection of a PDF generation implementation
@@ -103,27 +139,10 @@ gen_group.add_argument(
     "--pdf_gen_2b",
     action="store_true",
     dest="gen2b",
-    help="The second PDF rendering implementation with ``pycairo``. The "
-    "default option.",
-)
-
-# Group for either an AND or OR query
-query_group = parser.add_mutually_exclusive_group()
-query_group.add_argument(
-    "-qa",
-    "--query-any",
-    dest="queries_any",
-    help="Select the commits whose title OR description match ANY part of "
-    'your query. Format: "<query1>" OR "<query1,query2>" etc. Note: '
-    "queries can have leading or trailing whitespace.",
-)
-query_group.add_argument(
-    "-QA",
-    "--query-all",
-    dest="queries_all",
-    help="Select the commits whose title OR description match ALL parts of "
-    'your query. Format: "<query1>" OR "<query1,query2>" etc. Note: '
-    "queries can have leading or trailing whitespace.",
+    help=(
+        "The second PDF rendering implementation with ``pycairo``. The "
+        "default option."
+    ),
 )
 
 # Group for specifying either a path to a git repo or the name of the repo
@@ -135,16 +154,20 @@ repo_group.add_argument(
     dest="rpath",
     default=".",
     type=str,
-    help='Path to your repository directory. Set to "." (your current directory)'
-    " by default.",
+    help=(
+        'Path to your repository directory. Set to "." (your current'
+        " directory) by default."
+    ),
 )
 repo_group.add_argument(
     "-fc",
     "--repo-from-clone",
     dest="rname",
     type=str,
-    help="Clone a repo into the working directory and generate the commits "
-    "PDF from it automatically. Format: <repo name> (case insensitive).",
+    help=(
+        "Clone a repo into the working directory and generate the commits "
+        "PDF from it automatically. Format: <repo name> (case insensitive)."
+    ),
 )
 
 # Group for selecting either the newest or oldest n number of commits
@@ -154,14 +177,18 @@ n_commits_group.add_argument(
     "--newest-n-commits",
     dest="newest_n_commits",
     type=int,
-    help="Select the newest n number amount of commits to include after "
-    "filtering.",
+    help=(
+        "Select the newest n number amount of commits to include after "
+        "filtering."
+    ),
 )
 n_commits_group.add_argument(
     "-onc",
     "--oldest-n-commits",
     dest="oldest_n_commits",
     type=int,
-    help="Select the oldest n number amount of commits to include after "
-    "filtering.",
+    help=(
+        "Select the oldest n number amount of commits to include after "
+        "filtering."
+    ),
 )

@@ -4,7 +4,7 @@ logger = getLogger()
 logger.setLevel(INFO)
 console = StreamHandler()
 formatter = Formatter(
-    "%(asctime)s | %(levelname)s - %(message)s", datefmt="%H:%M:%S"
+    "%(levelname)s - %(message)s"
 )
 console.setFormatter(formatter)
 logger.addHandler(console)

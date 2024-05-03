@@ -18,7 +18,7 @@ setup(
         "GitPython",
         "pycairo",
         "fpdf",
-        "progressbar"
+        "tqdm"
     ],
     entry_points={
         "console_scripts": [

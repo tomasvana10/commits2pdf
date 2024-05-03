@@ -11,10 +11,9 @@ from cairo import (
     Context,
     PDFSurface,
 )
-from progressbar import ETA, Bar, Percentage, ProgressBar
+from tqdm import tqdm
 
 from .constants import (
-    GENERATING_PDF_INFO,
     HEIGHT,
     MARGIN,
     WIDTH,
@@ -43,11 +42,6 @@ class Cairo_PDF:
         self.timestamp = datetime.fromtimestamp(int(time())).strftime(
             "%Y-%m-%d %H:%M:%S"
         )
-        # Keep track of generation progress for the user
-        self._progress = ProgressBar(
-            maxval=len(self._commits.filtered_commits),
-            widgets=[Percentage(), Bar(), ETA()],
-        )
 
         self._s = PDFSurface(path.join(output, filename), WIDTH, HEIGHT)
         self._c = Context(self._s)
@@ -62,7 +56,6 @@ class Cairo_PDF:
         self.y += 40
 
         if len(self._commits.filtered_commits) > 0:
-            logger.info(GENERATING_PDF_INFO)
             self._draw_commits()
             logger.info(
                 WRITING_PDF_INFO.format(
@@ -75,9 +68,11 @@ class Cairo_PDF:
 
     def _draw_commits(self) -> None:
         """Driver function to draw all the commits."""
-        counter: int = 0
-        self._progress.start()
-        for commit in self._commits.filtered_commits:
+        for commit in tqdm(
+            self._commits.filtered_commits,
+            ncols=85,
+            desc="Generating",
+        ):
             text = self._get_commit_text(commit)
             height = sum(len(t) for t in text) * 14 + 50
             if self.y + height + 25 > HEIGHT - MARGIN:
@@ -89,11 +84,7 @@ class Cairo_PDF:
                 self._draw_footer()
 
             self.draw_commit(commit, self.y, *text)
-            counter += 1
-            self._progress.update(counter)
             self.y += height + 50
-
-        self._progress.finish()
 
     def _set_font(self, t: str, font: str = "Arial") -> None:
         """Set the font face, consisting of the family, slant and weight."""

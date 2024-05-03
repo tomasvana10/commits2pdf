@@ -6,7 +6,7 @@ handle arguments. Imports a PDF generation implementation from this package
 from argparse import Namespace
 from datetime import datetime
 from os import path
-from re import match
+from re import match, search
 
 from .args import parser
 from .commits import Commits
@@ -20,7 +20,7 @@ from .constants import (
     FPDF_LIGHT,
     INVALID_ARG_WARNING,
     INVALID_BASENAME_WARNING,
-    QUERY,
+    INVALID_QUERIES,
 )
 from .logger import logger
 
@@ -37,12 +37,12 @@ def main() -> None:
         authors,
         start_date,
         end_date,
-        queries_any,
-        queries_all,
+        include,
+        exclude,
         gen,
         mode,
         scaling,
-    ) = _handle_arguments(args)
+    ) = _validate_args(args)
 
     if args.rpath and not args.rname:
         logger.warn(INVALID_BASENAME_WARNING)
@@ -58,8 +58,8 @@ def main() -> None:
         reverse=args.reverse,
         newest_n_commits=args.newest_n_commits,
         oldest_n_commits=args.oldest_n_commits,
-        queries_any=queries_any,
-        queries_all=queries_all,
+        include=include,
+        exclude=exclude,
     )
 
     if not commits.err_flag:
@@ -130,17 +130,15 @@ def _open_pdf(args, p) -> None:
                 os_system("xdg-open %s" % p)
 
 
-def _handle_arguments(args: Namespace) -> tuple[None | str | list[str]]:
+def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
     """Process arguments through some conditions and regex matching to ensure
     they are valid. Raise errors if they are not valid.
     """
-    url = authors = start_date = end_date = queries_any = queries_all = (
-        scaling
-    ) = None
+    url = authors = start_date = end_date = include = exclude = scaling = None
 
     if args.rname:
-        rpath: str = args.rname  # Set the repository path to the name of the
-        # repository that will be cloned
+        rpath: str = args.rname  # Set the repo path to the name of the repo 
+                                 # that will be cloned
         url: str = f"https://github.com/{args.owner}/{args.rname}"
     else:
         rpath: str = args.rpath
@@ -162,16 +160,17 @@ def _handle_arguments(args: Namespace) -> tuple[None | str | list[str]]:
             exit(1)
         end_date: datetime = datetime.strptime(args.end_date, "%Y-%m-%d")
 
-    if args.queries_any:
-        if not match(QUERY, args.queries_any):
+    if args.include:
+        if search(INVALID_QUERIES, args.include):
             logger.error(INVALID_ARG_WARNING.format("query"))
             exit(1)
-        queries_any: list[str] = args.queries_any.split(",")
-    elif args.queries_all:
-        if not match(QUERY, args.queries_all):
+        include: list[str] = args.include.split(",")
+        
+    if args.exclude:
+        if search(INVALID_QUERIES, args.exclude):
             logger.error(INVALID_ARG_WARNING.format("query"))
             exit(1)
-        queries_all: list[str] = args.queries_all.split(",")
+        exclude: list[str] = args.exclude.split(",")
 
     if args.gen1:
         gen, mode = "gen1", None
@@ -196,8 +195,8 @@ def _handle_arguments(args: Namespace) -> tuple[None | str | list[str]]:
         authors,
         start_date,
         end_date,
-        queries_any,
-        queries_all,
+        include,
+        exclude,
         gen,
         mode,
         scaling,

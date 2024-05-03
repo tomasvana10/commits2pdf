@@ -9,9 +9,7 @@ EMAILS = re.compile(
     r"^([\w+-.%]+@[\w.-]+\.[A-Za-z]{2,4})(,[\w+-.%]+@[\w.-]+\.[A-Za-z]{2,4})*$"
 )  # usr@email.com or usr@email.com,user2@email.com, etc
 
-QUERY = re.compile(
-    r"^\s*(?:[^,\s]+(?:\s*,\s*[^,\s]+)*)?\s*$"
-)  # value1,value2 etc or value1 (can have leading/trailing whitespace)
+INVALID_QUERIES = re.compile(r"^,|,$")
 
 """Other stuff for arg parsing process"""
 USAGE_INFO = (
@@ -59,8 +57,9 @@ CLONING_REPO_INFO = (
 NONEXISTING_REPO_ERROR = (
     "The repository you specified does not exist. Exiting..."
 )
-UNEXPECTED_BUG_ERROR = (
-    "Please delete your specified repository's directory and try again."
+MUST_RECLONE_ERROR = (
+    "Please delete your repository from your file system and rerun your console "
+    "command to clone a different branch of your specified repository."
 )
 
 
@@ -77,7 +76,6 @@ GATHERED_COMMITS_INFO = (
 
 
 """General PDF messages"""
-GENERATING_PDF_INFO = "Generating your PDF..."
 WRITING_PDF_INFO = "Writing your PDF to {}"
 
 
@@ -95,7 +93,7 @@ RECURSION_ERROR = (
 CODING = "latin-1"
 TITLE_FONT = ["Arial", "B", 36]
 SUBTITLE_FONT = ["Arial", "", 30]
-MARGIN_FONT = ["Arial", "I", 8]
+MARGIN_FONT = ["Arial", "I", 9.5]
 SMALL_TEXT_FONT = ["Arial", "", 12]
 MEDIUM_TEXT_FONT = ["Arial", "", 16]
 TITLE_PAGE_INFO_FONT = ["Courier", "", 15]
@@ -110,22 +108,26 @@ CAIRO_LIGHT = {
     "background": (1, 1, 1),
     "text": (0, 0, 0),
     "diff_url": (0, 0, 1),
+    "TYPE": "LIGHT"
 }
 
 CAIRO_DARK = {
     "background": (0.2, 0.2, 0.2),
     "text": (0.9, 0.9, 0.9),
     "diff_url": (0.6, 0.6, 1),
+    "TYPE": "DARK"
 }
 
 FPDF_LIGHT = {
     "background": (255, 255, 255),
     "text": (0, 0, 0),
     "diff_url": (0, 0, 255),
+    "TYPE": "LIGHT"
 }
 
 FPDF_DARK = {
     "background": (51, 51, 51),
     "text": (229, 229, 229),
     "diff_url": (123, 127, 232),
+    "TYPE": "DARK"
 }
