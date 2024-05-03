@@ -110,7 +110,6 @@ class Commits(object):
 
         try:  # The branch they want does not exist, so access the active branch
             b: Head = r.active_branch
-            print("got new active branch", b)
         except TypeError:
             return logger.error(DETACHED_BRANCH_ERROR.format(self.branch))
 
