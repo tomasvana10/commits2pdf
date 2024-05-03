@@ -1,9 +1,13 @@
 import re
 
 """Regex for arg parser"""
-DATE = re.compile(
-    r"^\d{4}\-(0?[1-9]|1[012])\-(0?[1-9]|[12][0-9]|3[01])$"
-)  # YYYY/m/d or YYYY/mm/dd
+DATE = re.compile((
+    r"^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]"
+    r"|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1"
+    r"[6-9]|[2-9]\d)?(?:0[48]|[2468][048]|[13579][26])|(?:(?:16|[2468][048]|[3"
+    r"579][26])00))))$|^(?:0?[1-9]|1\d|2[0-8])(\/|-|\.)(?:(?:0?[1-9])|(?:1[0-2]"
+    r"))\4(?:(?:1[6-9]|[2-9]\d)?\d{2})$"
+))  # d/m/yyyy or dd/mm/yyyy
 
 EMAILS = re.compile(
     r"^([\w+-.%]+@[\w.-]+\.[A-Za-z]{2,4})(,[\w+-.%]+@[\w.-]+\.[A-Za-z]{2,4})*$"
@@ -58,8 +62,9 @@ NONEXISTING_REPO_ERROR = (
     "The repository you specified does not exist. Exiting..."
 )
 MUST_RECLONE_ERROR = (
-    "Please delete your repository from your file system and rerun your console "
-    "command to clone a different branch of your specified repository."
+    "Please delete your repository from your file system and rerun your"
+    " console command to clone a different branch of your specified"
+    " repository."
 )
 
 
@@ -108,26 +113,26 @@ CAIRO_LIGHT = {
     "background": (1, 1, 1),
     "text": (0, 0, 0),
     "diff_url": (0, 0, 1),
-    "TYPE": "LIGHT"
+    "TYPE": "LIGHT",
 }
 
 CAIRO_DARK = {
     "background": (0.2, 0.2, 0.2),
     "text": (0.9, 0.9, 0.9),
     "diff_url": (0.6, 0.6, 1),
-    "TYPE": "DARK"
+    "TYPE": "DARK",
 }
 
 FPDF_LIGHT = {
     "background": (255, 255, 255),
     "text": (0, 0, 0),
     "diff_url": (0, 0, 255),
-    "TYPE": "LIGHT"
+    "TYPE": "LIGHT",
 }
 
 FPDF_DARK = {
     "background": (51, 51, 51),
     "text": (229, 229, 229),
     "diff_url": (123, 127, 232),
-    "TYPE": "DARK"
+    "TYPE": "DARK",
 }

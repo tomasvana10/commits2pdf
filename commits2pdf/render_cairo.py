@@ -40,7 +40,7 @@ class Cairo_PDF:
             appearance,
         )
         self.timestamp = datetime.fromtimestamp(int(time())).strftime(
-            "%Y-%m-%d %H:%M:%S"
+            "%d/%m/%Y %H:%M:%S"
         )
 
         self._s = PDFSurface(path.join(output, filename), WIDTH, HEIGHT)

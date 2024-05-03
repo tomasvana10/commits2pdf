@@ -153,12 +153,12 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
         if not match(DATE, args.start_date):
             logger.error(INVALID_ARG_WARNING.format("date"))
             exit(1)
-        start_date: datetime = datetime.strptime(args.start_date, "%Y-%m-%d")
+        start_date: datetime = datetime.strptime(args.start_date, "%d/%m/%Y")
     if args.end_date:
         if not match(DATE, args.end_date):
             logger.error(INVALID_ARG_WARNING.format("date"))
             exit(1)
-        end_date: datetime = datetime.strptime(args.end_date, "%Y-%m-%d")
+        end_date: datetime = datetime.strptime(args.end_date, "%d/%m/%Y")
 
     if args.include:
         if search(INVALID_QUERIES, args.include):

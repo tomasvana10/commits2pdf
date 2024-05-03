@@ -1,11 +1,11 @@
 from setuptools import setup, find_packages
 
-with open("README.md") as f:
+with open("README.md", encoding="utf-8") as f:
     LONG_DESCRIPTION = f.read()
 
 setup(
     name="commits2pdf",
-    version="1.1.8",
+    version="1.1.9",
     author="Tomas Vana",
     url="https://github.com/tomasvana10/commits2pdf",
     description="View a filtered commit history in PDF form.",

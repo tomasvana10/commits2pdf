@@ -54,7 +54,7 @@ class FPDF_PDF:
 
         self.err_flag: bool = False
         self.timestamp = datetime.fromtimestamp(int(time())).strftime(
-            "%Y-%m-%d %H:%M:%S"
+            "%d/%m/%Y %H:%M:%S"
         )
         self._commits, self._output, self._filename, self._ap, self._mode = (
             commits,
@@ -63,6 +63,7 @@ class FPDF_PDF:
             appearance,
             mode,
         )
+        self.commit_count = len(self._commits.filtered_commits)
             
         if self._ap["TYPE"] == "DARK": # Inject decorators to detect new page
             FPDF._beginpage = _beginpage_addon(FPDF._beginpage)
@@ -113,7 +114,7 @@ class FPDF_PDF:
             self.do_pre_vis: bool = False
             self._p.set_auto_page_break(auto=True)
 
-        if len(self._commits.filtered_commits) > 0:
+        if self.commit_count > 0:
             self._draw_commits()
 
     def footer(self) -> None:
@@ -160,6 +161,7 @@ class FPDF_PDF:
                                 # when cloning an instance of ``FPDF``.
         if self._p.page > page_no_before_draw: 
             self.footer()
+        self.commit_counter += 1
 
     def _draw_commits(self) -> None:
         """Driver function to draw all the commits using either the
@@ -167,7 +169,7 @@ class FPDF_PDF:
         """
         self._p.add_page()  # Draw separate to the title page
         self._draw_page_bg()
-
+        self.commit_counter: int = 0
         # gen2b
         if self._mode == "unstable":
             for commit in tqdm(
@@ -184,6 +186,9 @@ class FPDF_PDF:
                     self._draw_newpage_commit(commit, no_divider=True)
                 else:  # No need to break the page
                     self._draw_commit(commit)
+                    self.commit_counter += 1
+                    if self.commit_counter == self.commit_count:
+                        self.footer()
 
         # gen2a
         elif self._mode == "stable":
@@ -196,6 +201,9 @@ class FPDF_PDF:
                     self._draw_newpage_commit(commit)
                 else:
                     self._draw_commit(commit)
+                    self.commit_counter += 1
+                    if self.commit_counter == self.commit_count:
+                        self.footer()
 
     def _draw_commit(
         self,
@@ -328,8 +336,8 @@ class FPDF_PDF:
             self._p.font_size * 1.5,
             align="C",
             txt=f"Start date: "
-            f"{self._commits.start_date.strftime('%Y-%m-%d') if self._commits.start_date else 'N/A'} "
-            f"| End date: {self._commits.end_date.strftime('%Y-%m-%d') if self._commits.end_date else 'N/A'}",
+            f"{self._commits.start_date.strftime('%d/%m/%Y') if self._commits.start_date else 'N/A'} "
+            f"| End date: {self._commits.end_date.strftime('%d/%m/%Y') if self._commits.end_date else 'N/A'}",
         )
         self._p.ln()
         self._p.multi_cell(

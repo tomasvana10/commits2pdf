@@ -301,7 +301,7 @@ class Commit(dict):
         self["info"] = (
             f"{self['hexsha_short']} | "
             f"By {self['author_name']} ({self['author_email']}) | "
-            f"At {self['date'].strftime('%Y-%m-%d')}"
+            f"At {self['date'].strftime('%d/%m/%Y')}"
         )
         self["info"] = Commit._code(self["info"])
 

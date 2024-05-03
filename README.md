@@ -40,6 +40,7 @@ pip install --user -U commits2pdf
 
 **If you encounter errors with building `pycairo`, click [here](https://stackoverflow.com/a/76175684/23245953)**
 <br><br>
+
 ## Command-line parameters
 ```
 positional arguments:
@@ -48,122 +49,83 @@ positional arguments:
 options:
   -h, --help            show this help message and exit
   -o OUTPUT, --output OUTPUT
-                        Directory path to your PDF output. Set to "." (your current directory) by default. Will be
-                        created if it does not exist. Example: -o ./work/my_pdfs
+                        Directory path to your PDF output. Set to "." (your current directory) by default. Will be created if it does not exist. Example:
+                        ./work/my_pdfs
   -b BRANCH, --branch BRANCH
                         The repository branch. Set to "main" by default.
   -a AUTHORS, --authors AUTHORS
-                        Filter commits from a comma-separated list of authors. Format: <author@email.com> OR
-                        <author1@email.com,author2@email.com> etc. Set to all authors by default.
+                        Filter commits from a comma-separated list of authors. Format: <author@email.com> OR <author1@email.com,author2@email.com> etc. Set to all      
+                        authors by default.
   -s START_DATE, --start_date START_DATE
-                        Filter from start date of commits. Format: YYYY-mm-dd or YYYY-m-d. Example: 2023-12-05
+                        Filter from start date of commits. Format: d/m/YYYY. Example: 5/12/2023
   -e END_DATE, --end_date END_DATE
-                        Filter to end date of commits. Format: YYYY-mm-dd or YYYY-m-d. Example: 2023-12-05
+                        Filter to end date of commits. Format: d/m/YYYY. Example: 5/12/2023
   -r, --reverse         Output the commits from newest to oldest. Set to oldest to newest by default
-  -d, --dark            Toggle dark mode for the output PDF. Set to "light" by default.
+  -dark                 Toggle dark mode for the output PDF. Set to "light" by default.
   -po, --prevent-open   Prevent commits2pdf from automatically opening the directory the PDF was created in.
   -sc SCALING, --scaling SCALING
                         Set the scaling of the output PDF. Only available with gen2a and gen2b.
+  -in INCLUDE, --include INCLUDE
+                        Include commits with the given string sequences in their title or description. Format: "<string1>" OR "<string1,string2>". Whitespace
+                        sensitive and case insensitive. NOTE: This query is performed BEFORE excluding commits.
+  -ex EXCLUDE, --exclude EXCLUDE
+                        Exclude commits with the given string sequences in their title or description. Format: "<string1>" OR "<string1,string2>". Whitespace
+                        sensitive and case insensitive.
   -gen1, --pdf_gen_1    PDF rendering implementation with ``pycairo``.
   -gen2a, --pdf_gen_2a  The first PDF rendering implementation with ``fpdf``.
   -gen2b, --pdf_gen_2b  The second PDF rendering implementation with ``pycairo``. The default option.
-  -qa QUERIES_ANY, --query-any QUERIES_ANY
-                        Select the commits whose title OR description match ANY part of your query. Format: "<query1>"
-                        OR "<query1,query2>" etc. Note: queries can have leading or trailing whitespace.
-  -QA QUERIES_ALL, --query-all QUERIES_ALL
-                        Select the commits whose title OR description match ALL parts of your query. Format:
-                        "<query1>" OR "<query1,query2>" etc. Note: queries can have leading or trailing whitespace.
   -rp RPATH, --repo-path RPATH
                         Path to your repository directory. Set to "." (your current directory) by default.
   -fc RNAME, --repo-from-clone RNAME
-                        Clone a repo into the working directory and generate the commits PDF from it automatically.
-                        Format: <repo name> (case insensitive).
+                        Clone a repo into the working directory and generate the commits PDF from it automatically. Format: <repo name> (case insensitive).
   -nnc NEWEST_N_COMMITS, --newest-n-commits NEWEST_N_COMMITS
                         Select the newest n number amount of commits to include after filtering.
   -onc OLDEST_N_COMMITS, --oldest-n-commits OLDEST_N_COMMITS
                         Select the oldest n number amount of commits to include after filtering.
 ```
-<br>
 
 ## Usage
-<br>**Simple usage - what you will be using the most**:
+**Usage example #1**
 ```
 c2p tomasvana10
 ```
-_Explanation_: Run the CLI tool in the current directory (assuming it is a Git repository). The owner name must be provided in all cases.
+> Output a PDF to your current directory (assuming it is a git repository that is owned by `tomasvana10`).
 
-<br>**Advanced usage example #1**:
+<br>**Usage example #2**
 ```
-c2p tomasvana10 -rp ../seriescalculator_sdd -a person@email.com,other_person@gmail.com -s 2024-11-30 -e 2024-12-30 -b other_branch -d
+c2p tomasvana10 -o .. -rp ./my_repo
 ```
-_Explanation_: 
-1. Override the default repository path (``-rp ..\seriescalculator_sdd``) with a folder in the parent directory.
-2. Look for specific commit emails (separated by commas)
-3. Search for commits from the -s date until the -e date
-4. Search for commits only made to `other_branch`
-5. Toggle dark mode for the PDF output
+> Output a PDF to the parent directory, selecting `./my_repo` as your git repository to access the commits from.
 
-<br>**Advanced usage example #2**
+<br>**Usage example #3**
 ```
-c2p tomasvana10 -nnc 10 -r
+c2p tomasvana10 -nnc 10 -in "javascript,build" -ex "testing"
 ```
-_Explanation_: Display the newest ten commits (after any filtering) in reverse order (newest to oldest instead of the default, which is oldest to newest).
+> Output a PDF to the current directory, displaying the newest 10 commits after filtering commits that contain "javascript" or "build in their title or description and do not contain "testing"
 
-<br>**Advanced usage example #3**
+<br>**Usage example #4**
 ```
-c2p tomasvana10 -qa "javascript,test " -onc 5 -po -o ..
+c2p devguarv -fc Yr-12-HSC-SDD-Task-2 -e 28/4/2024
 ```
-_Explanation_: 
-1. Display the 5 oldest commits after querying the current repository's commits for either "javascript" OR "test "
-2. Prevent the PDF directory from being automatically opened.
-3. Output the PDF to the parent directory (`..`)
+> Clone the repo `Yr-12-HSC-SDD-Task-2` into the current directory and output a PDF into the same place after filtering commits that were made up to `28/4/2024`
+<br>
 
-**NOTE**: -qa selects commits that include **any** query criteria in the title **OR** description, while -QA selects commits that include **ALL** query criteria in the title or description.
-
-<br>**Advanced usage example #4**
-```
-c2p tomasvana10 -QA "dev ,testing" -gen2a -sc 0.8
-```
-_Explanation_:
-1. Query the repo for both "dev " AND "testing"
-2. Use the `gen2a` PDF renderer to visualise the PDF
-3. Set the scaling of the PDF output to 0.8
-
-**NOTE**: Scaling (`-sc`) is only available when using `gen2a` or `gen2b`. `gen2b` is default.
-
-<br>**Clone the repo you want to document on-demand**:
-```
-c2p tomasvana10 -fc some_repo_name
-```
-_Explanation_: Create the repo you have specified and make the PDF. This repo is always cloned into the current working directory.
-<br><br>
 ## PDF Generation implementations
 ### pycairo (gen1)
-+ Fast
-- Looks like crap 
-- No hyperlinks, therefore the entire link to a commit's diff is displayed
-- Occasional bugs in rendering
+👍 Fast<br>
+👎 Cannot write multipage commits<br>
+👎 Looks like crap<br>
+👎 No hyperlinks, therefore the entire link to a commit's diff is displayed
 
 ### fpdf (gen2a)
-+ Fast
-+ Can be scaled with the `-sc <float>` argument 
-+ Sleek design
-+ Information title page
-+ Contains hyperlinks
-+ Stores PDF metadata
-- Inconsistent page breaks, a general limitation with FPDF when trying to fit as many whole commits on a single page 
+👍 Fast<br>
+👍 Can be scaled with the `-sc <float>` argument<br> 
+👍 Sleek design<br>
+👍 Information title page<br>
+👍 Contains hyperlinks<br>
+👍 Stores PDF metadata<br>
+👎 Inconsistent page breaks, a general limitation with FPDF when trying to fit as many whole commits on a single page<br> 
 
 ### fpdf (gen2b - Default)
-+ Same as gen2a but with perfectly accurate page breaking
-- Slow when generating large amounts of commits (generally, it is a good idea to switch to gen2a (with the `-gen2a` argument) when drawing over 5000 commits)
-
-<br><br>
-## Gallery
-**gen1 title page**<br>
-<img src="https://github.com/tomasvana10/commits2pdf/assets/124552709/b243e102-0eda-4750-bbce-027f5738405b" alt="gen1 pdf title page" width=561.12>
-
-**gen2 title page in dark mode**<br>
-<img src="https://github.com/tomasvana10/commits2pdf/assets/124552709/e1f2fe53-1c72-42a6-a89b-44a27c0b06a9" alt="gen2 pdf title page dark" width=561.12>
-
-**gen2 commit page in dark mode**<br>
-<img src="https://github.com/tomasvana10/commits2pdf/assets/124552709/a9fd3341-e661-4355-91e7-0dc3182e7239" alt="gen2 pdf commit page dark" width=561.12>
+👍 Same as gen2a but with perfectly accurate page breaking<br>
+👎 Slow when generating large amounts of commits (generally, it is a good idea to switch to gen2a (with the `-gen2a` argument) when drawing over 5000 commits)<br>

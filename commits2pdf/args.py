@@ -20,7 +20,7 @@ parser.add_argument(
     help=(
         'Directory path to your PDF output. Set to "." (your current'
         " directory) by default. Will be created if it does not exist."
-        " Example: -o ./work/my_pdfs"
+        " Example: ./work/my_pdfs"
     ),
 )
 parser.add_argument(
@@ -45,19 +45,13 @@ parser.add_argument(
     "-s",
     "--start_date",
     dest="start_date",
-    help=(
-        "Filter from start date of commits. Format: YYYY-mm-dd or YYYY-m-d. "
-        "Example: 2023-12-05"
-    ),
+    help="Filter from start date of commits. Format: d/m/YYYY. Example: 5/12/2023",
 )
 parser.add_argument(
     "-e",
     "--end_date",
     dest="end_date",
-    help=(
-        "Filter to end date of commits. Format: YYYY-mm-dd or YYYY-m-d.  "
-        "Example: 2023-12-05"
-    ),
+    help="Filter to end date of commits. Format: d/m/YYYY. Example: 5/12/2023",
 )
 parser.add_argument(
     "-r",
@@ -103,7 +97,7 @@ parser.add_argument(
     help=(
         "Include commits with the given string sequences in their title or"
         ' description. Format: "<string1>" OR "<string1,string2>". Whitespace'
-        " and sensitive and case insensitive. NOTE: This query is performed"
+        " sensitive and case insensitive. NOTE: This query is performed"
         " BEFORE excluding commits."
     ),
 )
@@ -114,7 +108,7 @@ parser.add_argument(
     help=(
         "Exclude commits with the given string sequences in their title or"
         ' description. Format: "<string1>" OR "<string1,string2>". Whitespace'
-        " and sensitive and case insensitive."
+        " sensitive and case insensitive."
     ),
 )
 
