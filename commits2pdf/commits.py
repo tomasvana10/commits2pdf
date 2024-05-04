@@ -39,18 +39,8 @@ class Commits(object):
         """Save filter and repo information from kwargs."""
         self.err_flag: bool = False  # Detected in ``cli.py`` to stop execution
 
-        self.rpath: str = kwargs["rpath"]
-        self.owner: str = kwargs["owner"]
-        self.url: Optional[str] = kwargs["url"]
-        self.branch: Optional[str] = kwargs["branch"]
-        self.authors: Optional[list[str]] = kwargs["authors"]
-        self.start_date: Optional[datetime] = kwargs["start_date"]
-        self.end_date: Optional[datetime] = kwargs["end_date"]
-        self.reverse: Optional[bool] = kwargs["reverse"]
-        self.newest_n_commits: Optional[int] = kwargs["newest_n_commits"]
-        self.oldest_n_commits: Optional[int] = kwargs["oldest_n_commits"]
-        self.include: Optional[list[str]] = kwargs["include"]
-        self.exclude: Optional[list[str]] = kwargs["exclude"]
+        for arg in kwargs:
+            setattr(self, arg, kwargs[arg])
 
         self.r: Repo = self._get_repo()
         if isinstance(self.r, Repo):  # Repo was successfully found, continue
@@ -105,7 +95,7 @@ class Commits(object):
         """Ensure that ``self.branch`` exists. If not, attempt to set it to the
         repo's active branch.
         """
-        if self.branch == r.active_branch:
+        if self.branch == str(r.active_branch):
             return True
 
         try:  # The branch they want does not exist, so access the active branch

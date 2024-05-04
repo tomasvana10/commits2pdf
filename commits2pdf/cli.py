@@ -96,9 +96,8 @@ def _make_pdf(
         gen_args.append(scaling)
 
     pdf = cls(*gen_args)
-    if hasattr(pdf, "err_flag"):
-        if pdf.err_flag:
-            return
+    if pdf.err_flag:
+        return
 
     p = path.abspath(args.output)
     logger.info(
@@ -177,7 +176,7 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
         appearance: dict[str, tuple[int]] = (
             CAIRO_LIGHT if not args.dark else CAIRO_DARK
         )
-        if args.scaling:
+        if args.scaling != 1.0:
             logger.warning(CANNOT_USE_SCALE_WARNING)
     else:
         gen, mode = (

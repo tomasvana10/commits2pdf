@@ -18,6 +18,7 @@ from .constants import (
     MARGIN,
     WIDTH,
     WRITING_PDF_INFO,
+    INVALID_OUTPUT_DIR_ERROR
 )
 from .logger import logger
 
@@ -42,6 +43,7 @@ class Cairo_PDF:
         self.timestamp = datetime.fromtimestamp(int(time())).strftime(
             "%d/%m/%Y %H:%M:%S"
         )
+        self.err_flag: bool = False
 
         self._s = PDFSurface(path.join(output, filename), WIDTH, HEIGHT)
         self._c = Context(self._s)
@@ -59,19 +61,24 @@ class Cairo_PDF:
             self._draw_commits()
             logger.info(
                 WRITING_PDF_INFO.format(
-                    self._output + " ..."
+                    path.normpath(self._output) + " ..."
                     if self._output != "."
                     else "your current directory..."
                 )
             )
-            self._s.finish()
+            try:
+                self._s.finish()
+            except OSError:
+                logger.error(INVALID_OUTPUT_DIR_ERROR)
+                self.err_flag = True
+                exit(1)
 
     def _draw_commits(self) -> None:
         """Driver function to draw all the commits."""
         for commit in tqdm(
             self._commits.filtered_commits,
             ncols=85,
-            desc="Generating",
+            desc="GENERATING",
         ):
             text = self._get_commit_text(commit)
             height = sum(len(t) for t in text) * 14 + 50

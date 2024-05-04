@@ -82,6 +82,10 @@ GATHERED_COMMITS_INFO = (
 
 """General PDF messages"""
 WRITING_PDF_INFO = "Writing your PDF to {}"
+INVALID_OUTPUT_DIR_ERROR = (
+    "Your output directory is invalid. Please ensure it contains valid "
+    "characters and try again."
+)
 
 
 """For the pycairo PDF implementation"""

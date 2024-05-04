@@ -19,7 +19,8 @@ from .constants import (
     TITLE_FONT,
     TITLE_PAGE_INFO_FONT,
     WRITING_PDF_INFO,
-    FPDF_DARK
+    FPDF_DARK,
+    INVALID_OUTPUT_DIR_ERROR
 )
 from .logger import logger
 
@@ -73,12 +74,17 @@ class FPDF_PDF:
         self._prepare_and_draw()
         logger.info(
             WRITING_PDF_INFO.format(
-                self._output + " ..."
+                path.normpath(self._output) + " ..."
                 if self._output != "."
                 else "your current directory..."
             )
         )
-        self._write()
+        try:
+            self._write()
+        except OSError:
+            logger.error(INVALID_OUTPUT_DIR_ERROR)
+            self.err_flag = True
+            exit(1)
 
     @staticmethod
     def _set_scaling(scaling: float) -> None:
@@ -175,7 +181,7 @@ class FPDF_PDF:
             for commit in tqdm(
                 self._commits.filtered_commits,
                 ncols=85,
-                desc="Generating",
+                desc="GENERATING",
             ):
                 result = self._draw_commit(commit, pre_vis=True)
                 if result == "NEW_PAGE_OK":  # Break page
@@ -195,7 +201,7 @@ class FPDF_PDF:
             for commit in tqdm(
                 self._commits.filtered_commits,
                 ncols=85,
-                desc="Generating",
+                desc="GENERATING",
             ):
                 if self._commit_exceeds_size(commit):  # Break page
                     self._draw_newpage_commit(commit)
