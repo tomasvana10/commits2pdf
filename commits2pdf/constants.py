@@ -1,6 +1,6 @@
 import re
 
-"""Regex for arg parser"""
+# Regex for arg parser
 DATE = re.compile((
     r"^(?:(?:31(\/|-|\.)(?:0?[13578]|1[02]))\1|(?:(?:29|30)(\/|-|\.)(?:0?[13-9]"
     r"|1[0-2])\2))(?:(?:1[6-9]|[2-9]\d)?\d{2})$|^(?:29(\/|-|\.)0?2\3(?:(?:(?:1"
@@ -15,7 +15,7 @@ EMAILS = re.compile(
 
 INVALID_QUERIES = re.compile(r"^,|,$")
 
-"""Other stuff for arg parsing process"""
+# Other stuff for arg parsing process
 USAGE_INFO = (
     "Simply run ``c2p -O <owner_name>`` in the command-line to generate a PDF"
     " of your repo's commit history (assuming your current directory is a"
@@ -33,7 +33,7 @@ INVALID_BASENAME_WARNING = (
 )
 
 
-"""Handling the processing of the repository"""
+# Handling the processing of the repository
 REPO_ALREADY_EXISTS_WARNING = (
     "The repository you are cloning from already exists, so it will be"
     " accessed normally."
@@ -66,9 +66,13 @@ MUST_RECLONE_ERROR = (
     " console command to clone a different branch of your specified"
     " repository."
 )
+ZERO_COMMITS_WARNING = (
+    "Based on your filtering parameters, the total commit count has been reduced "
+    "to zero."
+)
 
 
-"""Handling the filtering of the repository's commits"""
+# Handling the filtering of the repository's commits
 FILTER_INFO = "Filtered {} commit(s) from {} existing commit(s) based on {}."
 N_COMMITS_INFO = "Selecting n {} number of commits ({})."
 N_COMMITS_WARNING = (
@@ -80,21 +84,24 @@ GATHERED_COMMITS_INFO = (
 )
 
 
-"""General PDF messages"""
+# General PDF messages
 WRITING_PDF_INFO = "Writing your PDF to {}"
-INVALID_OUTPUT_DIR_ERROR = (
-    "Your output directory is invalid. Please ensure it contains valid "
-    "characters and try again."
-)
+INVALID_OUTPUT_DIR_ERROR = "Invalid characters in output directory."
+INVALID_FILENAME_ERROR = "Invalid characters in filename."
+FILENAME = "{}-commit_report.pdf"
 
 
-"""For the pycairo PDF implementation"""
+# For the pycairo PDF implementation
 WIDTH = 612
 HEIGHT = 792
 MARGIN = 50
+CAIRO_DEPRECATION_ERROR = (
+    "This generation method has been deprecated. If you wish to use it, run "
+    "``pip install pycairo`` or ``pip3 install pycairo`` and try again."
+)
 
 
-"""For the fpdf PDF implementation"""
+# For the fpdf PDF implementation
 RECURSION_ERROR = (
     "An error occured when using the gen2b renderer. Please try adding the"
     " -gen2a flag to your console command and try again."
@@ -112,7 +119,7 @@ MARGIN_LR = 25.4
 MARGIN_TB = 25.4
 
 
-"""Appearances"""
+# Appearances
 CAIRO_LIGHT = {
     "background": (1, 1, 1),
     "text": (0, 0, 0),

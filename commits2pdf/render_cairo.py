@@ -18,7 +18,6 @@ from .constants import (
     MARGIN,
     WIDTH,
     WRITING_PDF_INFO,
-    INVALID_OUTPUT_DIR_ERROR
 )
 from .logger import logger
 
@@ -66,12 +65,7 @@ class Cairo_PDF:
                     else "your current directory..."
                 )
             )
-            try:
-                self._s.finish()
-            except OSError:
-                logger.error(INVALID_OUTPUT_DIR_ERROR)
-                self.err_flag = True
-                exit(1)
+            self._s.finish()
 
     def _draw_commits(self) -> None:
         """Driver function to draw all the commits."""

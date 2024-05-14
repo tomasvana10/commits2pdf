@@ -2,7 +2,7 @@
 
 from argparse import ArgumentParser
 
-from .constants import USAGE_INFO
+from .constants import USAGE_INFO, FILENAME
 
 # General arguments
 parser = ArgumentParser(
@@ -12,6 +12,7 @@ parser.add_argument(
     "owner",
     help="The owner of the git repository. Required.",
 )
+
 parser.add_argument(
     "-o",
     "--output",
@@ -23,6 +24,17 @@ parser.add_argument(
         " Example: ./work/my_pdfs"
     ),
 )
+parser.add_argument(
+    "-n",
+    "--name",
+    dest="name",
+    default=FILENAME,
+    help=(
+        'The name of your outputted PDF file. Set to "<repo_name>-commit_report" '
+        "by default."
+    ),
+)
+    
 parser.add_argument(
     "-b",
     "--branch",
@@ -64,7 +76,8 @@ parser.add_argument(
     ),
 )
 parser.add_argument(
-    "-dark",
+    "-d",
+    "--dark",
     dest="dark",
     action="store_true",
     help='Toggle dark mode for the output PDF. Set to "light" by default.',
@@ -111,6 +124,13 @@ parser.add_argument(
         " sensitive and case insensitive."
     ),
 )
+parser.add_argument(
+    "-q",
+    "--quiet",
+    dest="quiet",
+    action="store_true",
+    help="Suppress all logger messages except for errors."
+)
 
 # Group for the selection of a PDF generation implementation
 gen_group = parser.add_mutually_exclusive_group()
@@ -134,7 +154,7 @@ gen_group.add_argument(
     action="store_true",
     dest="gen2b",
     help=(
-        "The second PDF rendering implementation with ``pycairo``. The "
+        "The second PDF rendering implementation with ``fpdf``. The "
         "default option."
     ),
 )
@@ -167,7 +187,7 @@ repo_group.add_argument(
 # Group for selecting either the newest or oldest n number of commits
 n_commits_group = parser.add_mutually_exclusive_group()
 n_commits_group.add_argument(
-    "-nnc",
+    "-nc",
     "--newest-n-commits",
     dest="newest_n_commits",
     type=int,
@@ -177,7 +197,7 @@ n_commits_group.add_argument(
     ),
 )
 n_commits_group.add_argument(
-    "-onc",
+    "-oc",
     "--oldest-n-commits",
     dest="oldest_n_commits",
     type=int,

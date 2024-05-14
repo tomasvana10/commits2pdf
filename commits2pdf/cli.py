@@ -5,8 +5,11 @@ handle arguments. Imports a PDF generation implementation from this package
 
 from argparse import Namespace
 from datetime import datetime
+from logging import ERROR
 from os import path
 from re import match, search
+
+from pathvalidate import validate_filename, validate_filepath, ValidationError
 
 from .args import parser
 from .commits import Commits
@@ -21,6 +24,10 @@ from .constants import (
     INVALID_ARG_WARNING,
     INVALID_BASENAME_WARNING,
     INVALID_QUERIES,
+    FILENAME,
+    INVALID_OUTPUT_DIR_ERROR,
+    INVALID_FILENAME_ERROR,
+    CAIRO_DEPRECATION_ERROR,
 )
 from .logger import logger
 
@@ -30,6 +37,13 @@ def main() -> None:
     the arguments using the ``Commits`` class.
     """
     args: Namespace = parser.parse_args()
+    if args.quiet: # Suppress all logs except for errors
+        logger.setLevel(ERROR)
+    try:
+        validate_filepath(args.output)
+    except ValidationError:
+        logger.error(INVALID_OUTPUT_DIR_ERROR)
+        exit(1)
     (
         appearance,
         rpath,
@@ -42,6 +56,7 @@ def main() -> None:
         gen,
         mode,
         scaling,
+        name,
     ) = _validate_args(args)
 
     if args.rpath and not args.rname:
@@ -63,7 +78,7 @@ def main() -> None:
     )
 
     if not commits.err_flag:
-        _make_pdf(commits, appearance, args, gen, mode, scaling)
+        _make_pdf(commits, appearance, args, gen, mode, scaling, name)
     else:
         return  # Any errors would have been logged by ``commits.py``, so exit
 
@@ -75,22 +90,24 @@ def _make_pdf(
     gen: str,
     mode: str,
     scaling: int,
+    name: str,
 ) -> None:
     """Generate the PDF based on the user's specified generation module."""
+    output_filename = FILENAME.format(commits.rname) if name == FILENAME else name
+    output_dir = path.abspath(args.output)
+    full_output_path = path.join(output_dir, output_filename)
     gen_args = [
         commits,
         args.output,
-        f"{commits.rname}-commits_report.pdf",
+        output_filename,
         appearance,
     ]
 
     if gen == "gen1":
         from .render_cairo import Cairo_PDF
-
         cls = Cairo_PDF
     else:
         from .render_fpdf import FPDF_PDF
-
         cls = FPDF_PDF
         gen_args.append(mode)
         gen_args.append(scaling)
@@ -99,13 +116,12 @@ def _make_pdf(
     if pdf.err_flag:
         return
 
-    p = path.abspath(args.output)
     logger.info(
-        f"Wrote {path.join(p, commits.rname)}-commits_report.pdf successfully!"
+        f"Wrote {full_output_path} successfully!"
     )
 
     if not args.prevent_open:
-        _open_pdf(args, p)
+        _open_pdf(args, output_dir)
 
 
 def _open_pdf(args, p) -> None:
@@ -134,6 +150,7 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
     they are valid. Raise errors if they are not valid.
     """
     url = authors = start_date = end_date = include = exclude = scaling = None
+    name = args.name
 
     if args.rname:
         rpath: str = args.rname  # Set the repo path to the name of the repo 
@@ -172,6 +189,11 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
         exclude: list[str] = args.exclude.split(",")
 
     if args.gen1:
+        try:
+            import cairo
+        except ImportError:
+            logger.error(CAIRO_DEPRECATION_ERROR)
+            exit(1)
         gen, mode = "gen1", None
         appearance: dict[str, tuple[int]] = (
             CAIRO_LIGHT if not args.dark else CAIRO_DARK
@@ -186,6 +208,15 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
             FPDF_LIGHT if not args.dark else FPDF_DARK
         )
         scaling = args.scaling
+    
+    if name != FILENAME:
+        if not name.endswith(".pdf"):
+            name += ".pdf"
+    try:
+        validate_filename(name)
+    except ValidationError:
+        logger.error(INVALID_FILENAME_ERROR)
+        exit(1)
 
     return (
         appearance,
@@ -199,4 +230,5 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
         gen,
         mode,
         scaling,
+        name
     )

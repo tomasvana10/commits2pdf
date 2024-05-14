@@ -28,6 +28,7 @@ from .constants import (
     NONEXISTING_REPO_ERROR,
     REPO_ALREADY_EXISTS_WARNING,
     MUST_RECLONE_ERROR,
+    ZERO_COMMITS_WARNING,
 )
 from .logger import logger
 
@@ -70,6 +71,8 @@ class Commits(object):
         self.raw_commits: list[Repo.commit] = self._gather_commits()
         self.commit_objects: list[Commit] = self._instantiate_commits()
         self.filtered_commits: list[Commit] = self._filter_commits()
+        if len(self.filtered_commits) == 0:
+            logger.warning(ZERO_COMMITS_WARNING)
 
     def _retry_clone(self, e) -> Repo | str | None:
         """Reattempt cloning if possible and update ``self.branch`` accordingly."""
@@ -232,7 +235,7 @@ class Commits(object):
             ]
             logger.info(
                 FILTER_INFO.format(
-                    len(filtered_commits), prior_len, "author_email"
+                    len(filtered_commits), prior_len, "author email"
                 )
             )
 
