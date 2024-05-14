@@ -5,10 +5,10 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="commits2pdf",
-    version="1.1.11",
+    version="1.1.12",
     author="Tomas Vana",
     url="https://github.com/tomasvana10/commits2pdf",
-    description="View a filtered commit history in PDF form.",
+    description="Convert Git commits to a PDF",
     long_description=LONG_DESCRIPTION,
     long_description_content_type="text/markdown",
     packages=find_packages(),
