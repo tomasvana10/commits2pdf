@@ -13,12 +13,7 @@ from cairo import (
 )
 from tqdm import tqdm
 
-from .constants import (
-    HEIGHT,
-    MARGIN,
-    WIDTH,
-    WRITING_PDF_INFO,
-)
+from .constants import HEIGHT, MARGIN, WIDTH, WRITING_PDF_INFO
 from .logger import logger
 
 

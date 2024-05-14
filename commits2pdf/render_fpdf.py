@@ -7,6 +7,7 @@ from fpdf import FPDF
 from tqdm import tqdm
 
 from .constants import (
+    FPDF_DARK,
     INFO_TEXT_FONT,
     MARGIN_FONT,
     MARGIN_LR,
@@ -19,12 +20,13 @@ from .constants import (
     TITLE_FONT,
     TITLE_PAGE_INFO_FONT,
     WRITING_PDF_INFO,
-    FPDF_DARK,
 )
 from .logger import logger
 
+
 def footer():
     pass
+
 
 def _beginpage_addon(func):
     def wrapper(self, *args, **kwargs):
@@ -32,9 +34,10 @@ def _beginpage_addon(func):
         self.set_fill_color(*FPDF_DARK["background"])
         self.rect(h=self.h, w=self.w, x=0, y=0, style="DF")
         return result
+
     return wrapper
-    
-    
+
+
 class FPDF_PDF:
     """PDF generation class implementing 2 methods of generation (``gen2a`` and
     ``gen2b``.
@@ -64,11 +67,11 @@ class FPDF_PDF:
             mode,
         )
         self.commit_count = len(self._commits.filtered_commits)
-            
-        if self._ap["TYPE"] == "DARK": # Inject decorators to detect new page
+
+        if self._ap["TYPE"] == "DARK":  # Inject decorators to detect new page
             FPDF._beginpage = _beginpage_addon(FPDF._beginpage)
         self._p = FPDF()
-            
+
         self._configure_fpdf()
         self._prepare_and_draw()
         logger.info(
@@ -155,17 +158,19 @@ class FPDF_PDF:
             self._p.add_page()
         self._draw_page_bg()
         self._p.set_auto_page_break(auto=True, margin=MARGIN_TB)
-        self._p.footer = self.footer # Temporarily override the empty ``footer``
-                                     # method inherited from ``FPDF`` to 
-                                     # automatically generate a footer if this
-                                     # new commit spans more than a single page.
+        self._p.footer = (
+            self.footer
+        )  # Temporarily override the empty ``footer``
+           # method inherited from ``FPDF`` to
+           # automatically generate a footer if this
+           # new commit spans more than a single page.
         page_no_before_draw = self._p.page
         self._draw_commit(commit, no_divider=no_divider)
         self._p.set_auto_page_break(auto=False)
-        self._p.footer = footer # Set the footer method of ``self._p`` back to 
-                                # an empty method to prevent a recursion error
-                                # when cloning an instance of ``FPDF``.
-        if self._p.page > page_no_before_draw: 
+        self._p.footer = footer  # Set the footer method of ``self._p`` back to
+                                 # an empty method to prevent a recursion error
+                                 # when cloning an instance of ``FPDF``.
+        if self._p.page > page_no_before_draw:
             self.footer()
         self.commit_counter += 1
 
@@ -335,7 +340,7 @@ class FPDF_PDF:
             align="C",
         )
         self._p.ln()
-        
+
         # Author(s)
         if self._commits.authors:
             authors = self._commits.authors.split(",")
@@ -344,14 +349,9 @@ class FPDF_PDF:
                 txt = txt.replace("Authors: ", "Author: ")
         else:
             txt = "Authors: All"
-        self._p.multi_cell(
-            0,
-            self._p.font_size * 1.5,
-            align="C",
-            txt=txt
-        )
+        self._p.multi_cell(0, self._p.font_size * 1.5, align="C", txt=txt)
         self._p.ln()
-        
+
         # Start and end date, omit if no data
         if self._commits.start_date or self._commits.end_date:
             self._p.multi_cell(
@@ -363,16 +363,16 @@ class FPDF_PDF:
                 f"| End date: {self._commits.end_date.strftime('%d/%m/%Y') if self._commits.end_date else 'N/A'}",
             )
             self._p.ln()
-        
+
         # Branch
         self._p.multi_cell(
             0,
             self._p.font_size * 1.5,
             align="C",
-            txt=f"Branch: {self._commits.branch}"
+            txt=f"Branch: {self._commits.branch}",
         )
         self._p.ln()
-        
+
         # Newest and oldest n commits, omit if no data
         if self._commits.newest_n_commits or self._commits.oldest_n_commits:
             self._p.multi_cell(
@@ -384,7 +384,7 @@ class FPDF_PDF:
                 align="C",
             )
             self._p.ln()
-        
+
         # Include/exclude filters, omit if no data
         if self._commits.include:
             self._p.multi_cell(
@@ -404,7 +404,7 @@ class FPDF_PDF:
                 f"{', '.join(self._commits.exclude) if self._commits.exclude else 'No specification'}",
             )
             self._p.ln()
-        
+
         # Sorting
         self._p.multi_cell(
             0,
@@ -414,12 +414,12 @@ class FPDF_PDF:
             f"{'Oldest to newest' if not self._commits.reverse else 'Newest to oldest'}",
         )
         self._p.ln()
-        
+
         # Commit count
         self._p.multi_cell(
             0,
             self._p.font_size * 1.5,
             align="C",
-            txt=f"Commit count: {len(self._commits.filtered_commits)}"
+            txt=f"Commit count: {len(self._commits.filtered_commits)}",
         )
         self._p.ln()

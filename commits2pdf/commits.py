@@ -5,6 +5,7 @@ from os import path
 from shutil import rmtree
 from typing import Optional
 
+from git import Commit as GitCommit
 from git import (
     GitCommandError,
     Head,
@@ -12,7 +13,6 @@ from git import (
     NoSuchPathError,
     Repo,
 )
-from git import Commit as GitCommit
 
 from .constants import (
     CLONING_REPO_INFO,
@@ -21,13 +21,13 @@ from .constants import (
     FILTER_INFO,
     GATHERED_COMMITS_INFO,
     INVALID_GIT_REPO_ERROR,
+    MUST_RECLONE_ERROR,
     N_COMMITS_INFO,
     N_COMMITS_WARNING,
     NONEXISTING_BRANCH_WARNING,
     NONEXISTING_OR_INVALID_REPO_ERROR,
     NONEXISTING_REPO_ERROR,
     REPO_ALREADY_EXISTS_WARNING,
-    MUST_RECLONE_ERROR,
     ZERO_COMMITS_WARNING,
 )
 from .logger import logger
@@ -77,9 +77,10 @@ class Commits(object):
     def _retry_clone(self, e) -> Repo | str | None:
         """Reattempt cloning if possible and update ``self.branch`` accordingly."""
         rmtree(self.rpath, ignore_errors=True)
-        if "remote branch" in str(e).casefold(): # User entered invalid branch, 
-                                                 # so clone repo without
-                                                 # specifying a branch argument
+        if (
+            "remote branch" in str(e).casefold()
+        ):  # User entered invalid branch, so clone repo without specifying a 
+            # branch argument
             r: Repo = Repo.clone_from(self.url, self.rpath, no_checkout=True)
             try:
                 b: Head = r.active_branch
@@ -131,7 +132,7 @@ class Commits(object):
         """
         if self.url:  # User wants to clone a repo
             if path.exists(self.rpath) and path.isdir(self.rpath):  # Repo may
-                                                                    # exist
+                # exist
                 if path.exists(path.join(self.rpath, ".git")):  # .git exists
                     logger.warn(REPO_ALREADY_EXISTS_WARNING)
                     try:

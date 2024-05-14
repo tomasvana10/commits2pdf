@@ -9,25 +9,25 @@ from logging import ERROR
 from os import path
 from re import match, search
 
-from pathvalidate import validate_filename, validate_filepath, ValidationError
+from pathvalidate import ValidationError, validate_filename, validate_filepath
 
 from .args import parser
 from .commits import Commits
 from .constants import (
     CAIRO_DARK,
+    CAIRO_DEPRECATION_ERROR,
     CAIRO_LIGHT,
     CANNOT_USE_SCALE_WARNING,
     DATE,
     EMAILS,
+    FILENAME,
     FPDF_DARK,
     FPDF_LIGHT,
     INVALID_ARG_WARNING,
     INVALID_BASENAME_WARNING,
-    INVALID_QUERIES,
-    FILENAME,
-    INVALID_OUTPUT_DIR_ERROR,
     INVALID_FILENAME_ERROR,
-    CAIRO_DEPRECATION_ERROR,
+    INVALID_OUTPUT_DIR_ERROR,
+    INVALID_QUERIES,
 )
 from .logger import logger
 
@@ -37,7 +37,7 @@ def main() -> None:
     the arguments using the ``Commits`` class.
     """
     args: Namespace = parser.parse_args()
-    if args.quiet: # Suppress all logs except for errors
+    if args.quiet:  # Suppress all logs except for errors
         logger.setLevel(ERROR)
     try:
         validate_filepath(args.output)
@@ -93,7 +93,9 @@ def _make_pdf(
     name: str,
 ) -> None:
     """Generate the PDF based on the user's specified generation module."""
-    output_filename = FILENAME.format(commits.rname) if name == FILENAME else name
+    output_filename = (
+        FILENAME.format(commits.rname) if name == FILENAME else name
+    )
     output_dir = path.abspath(args.output)
     full_output_path = path.join(output_dir, output_filename)
     gen_args = [
@@ -105,9 +107,11 @@ def _make_pdf(
 
     if gen == "gen1":
         from .render_cairo import Cairo_PDF
+
         cls = Cairo_PDF
     else:
         from .render_fpdf import FPDF_PDF
+
         cls = FPDF_PDF
         gen_args.append(mode)
         gen_args.append(scaling)
@@ -116,9 +120,7 @@ def _make_pdf(
     if pdf.err_flag:
         return
 
-    logger.info(
-        f"Wrote {full_output_path} successfully!"
-    )
+    logger.info(f"Wrote {full_output_path} successfully!")
 
     if not args.prevent_open:
         _open_pdf(args, output_dir)
@@ -153,8 +155,8 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
     name = args.name
 
     if args.rname:
-        rpath: str = args.rname  # Set the repo path to the name of the repo 
-                                 # that will be cloned
+        rpath: str = args.rname  # Set the repo path to the name of the repo
+        # that will be cloned
         url: str = f"https://github.com/{args.owner}/{args.rname}"
     else:
         rpath: str = args.rpath
@@ -181,7 +183,7 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
             logger.error(INVALID_ARG_WARNING.format("query"))
             exit(1)
         include: list[str] = args.include.split(",")
-        
+
     if args.exclude:
         if search(INVALID_QUERIES, args.exclude):
             logger.error(INVALID_ARG_WARNING.format("query"))
@@ -208,7 +210,7 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
             FPDF_LIGHT if not args.dark else FPDF_DARK
         )
         scaling = args.scaling
-    
+
     if name != FILENAME:
         if not name.endswith(".pdf"):
             name += ".pdf"
@@ -230,5 +232,5 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
         gen,
         mode,
         scaling,
-        name
+        name,
     )

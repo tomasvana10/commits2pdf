@@ -2,7 +2,7 @@
 
 from argparse import ArgumentParser
 
-from .constants import USAGE_INFO, FILENAME
+from .constants import FILENAME, USAGE_INFO
 
 # General arguments
 parser = ArgumentParser(
@@ -34,7 +34,7 @@ parser.add_argument(
         "by default."
     ),
 )
-    
+
 parser.add_argument(
     "-b",
     "--branch",
@@ -129,7 +129,7 @@ parser.add_argument(
     "--quiet",
     dest="quiet",
     action="store_true",
-    help="Suppress all logger messages except for errors."
+    help="Suppress all logger messages except for errors.",
 )
 
 # Group for the selection of a PDF generation implementation
