@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from os import path
 from shutil import rmtree
-from typing import Optional
+from typing import Dict, List, Union
 
 from git import Commit as GitCommit
 from git import (
@@ -68,13 +68,13 @@ class Commits(object):
                 self.r.working_tree_dir.split("/")[-1]
             )
 
-        self.raw_commits: list[Repo.commit] = self._gather_commits()
-        self.commit_objects: list[Commit] = self._instantiate_commits()
-        self.filtered_commits: list[Commit] = self._filter_commits()
+        self.raw_commits: List[Repo.commit] = self._gather_commits()
+        self.commit_objects: List[Commit] = self._instantiate_commits()
+        self.filtered_commits: List[Commit] = self._filter_commits()
         if len(self.filtered_commits) == 0:
             logger.warning(ZERO_COMMITS_WARNING)
 
-    def _retry_clone(self, e) -> Repo | str | None:
+    def _retry_clone(self, e) -> Union[Repo, str, None]:
         """Reattempt cloning if possible and update ``self.branch`` accordingly."""
         rmtree(self.rpath, ignore_errors=True)
         if (
@@ -95,7 +95,7 @@ class Commits(object):
             logger.error(NONEXISTING_OR_INVALID_REPO_ERROR.format(self.url))
             return "DELTREE"
 
-    def _validate_branch(self, r: Repo) -> bool | None:
+    def _validate_branch(self, r: Repo) -> Union[bool, None]:
         """Ensure that ``self.branch`` exists. If not, attempt to set it to the
         repo's active branch.
         """
@@ -111,7 +111,7 @@ class Commits(object):
         self.branch: Head = b  # Update the branch to the repo's active branch
         return True
 
-    def _clone_repo(self) -> Repo | str | None:
+    def _clone_repo(self) -> Union[Repo, str, None]:
         """Attempt to clone a repo's .git directory."""
         logger.info(CLONING_REPO_INFO)
         try:
@@ -125,7 +125,7 @@ class Commits(object):
         except GitCommandError as e:
             return self._retry_clone(e)
 
-    def _get_repo(self) -> Repo | str | None:
+    def _get_repo(self) -> Union[Repo, str, None]:
         """Access a repo, or clone it and then access it, and update
         ``self.branch`` if necessary. Complete with extensive error handling,
         ensuring a high chance of the user's requests being processed.
@@ -160,12 +160,12 @@ class Commits(object):
             except NoSuchPathError:
                 return logger.error(NONEXISTING_REPO_ERROR)
 
-    def _gather_commits(self) -> list[GitCommit]:
+    def _gather_commits(self) -> List[GitCommit]:
         """Find all the commits that match the user's since, until and branch
         specifications.
         """
         try:
-            commits: list[GitCommit] = list(
+            commits: List[GitCommit] = list(
                 self.r.iter_commits(
                     since=self.start_date,
                     until=self.end_date,
@@ -181,7 +181,7 @@ class Commits(object):
 
         return commits
 
-    def _instantiate_commits(self) -> list[dict[str, str]]:
+    def _instantiate_commits(self) -> List[Dict[str, str]]:
         """Instantiate all the filtered ``Repo.commit`` objects into my own
         simple class that inherits from a dictionary.
         """
@@ -193,13 +193,13 @@ class Commits(object):
 
         return commit_objects
 
-    def _filter_commits(self) -> list[Commit]:
+    def _filter_commits(self) -> List[Commit]:
         """Process the Commit objects based on user-specified criteria such as
         authors and queries.
         """
-        filtered_commits: list[Commit] = self.commit_objects
+        filtered_commits: List[Commit] = self.commit_objects
         if self.include:
-            filtered_commits: list[Commit] = [
+            filtered_commits: List[Commit] = [
                 commit
                 for commit in self.commit_objects
                 for q in self.include
@@ -215,7 +215,7 @@ class Commits(object):
             )
         if self.exclude:
             prior_len: int = len(filtered_commits)
-            filtered_commits: list[Commit] = [
+            filtered_commits: List[Commit] = [
                 commit
                 for commit in filtered_commits
                 for q in self.exclude
@@ -229,7 +229,7 @@ class Commits(object):
             )
         if self.authors:
             prior_len: int = len(filtered_commits)
-            filtered_commits: list[Commit] = [
+            filtered_commits: List[Commit] = [
                 commit
                 for commit in filtered_commits
                 if commit["author_email"] in self.authors

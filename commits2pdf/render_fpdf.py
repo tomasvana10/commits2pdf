@@ -2,6 +2,7 @@ from datetime import datetime
 from os import makedirs, path
 from pickle import dumps, loads
 from time import time
+from typing import Dict, List, Union
 
 from fpdf import FPDF
 from tqdm import tqdm
@@ -141,7 +142,7 @@ class FPDF_PDF:
         self._p.output(path.join(self._output, self._filename), "F")
 
     def _set_font(
-        self, *args: list[float], obj: str | object = "main"
+        self, *args: List[float], obj: Union[str, object] = "main"
     ) -> None:
         """Set the current font to a RGB value."""
         p = self._p if obj == "main" else obj
@@ -235,10 +236,10 @@ class FPDF_PDF:
 
     def _draw_commit(
         self,
-        commit: dict[str, str],
+        commit: Dict[str, str],
         pre_vis: bool = False,
         no_divider: bool = False,
-    ) -> str | None:
+    ) -> Union[str, None]:
         """Draw all the parts of a commit to the current ``FPDF`` instance
         or a copy of it as part of the ``gen2b`` generation implementation.
         """
@@ -281,7 +282,7 @@ class FPDF_PDF:
             if self.do_pre_vis and pre_vis and p.get_y() > p.h * 0.97:
                 return "NEW_PAGE_OK_BUT_NO_DIVIDER"
 
-    def _commit_exceeds_size(self, commit: dict[str, str]) -> bool:
+    def _commit_exceeds_size(self, commit: Dict[str, str]) -> bool:
         """Estimate the height of the upcoming commit to see if a new page must
         be added. It has a poor consistency that worsens with the increase/
         decrease of scaling. It is used as part of the gen2a generation

@@ -19,9 +19,9 @@ INVALID_QUERIES = re.compile(r"^,|,$")
 
 # Other stuff for arg parsing process
 USAGE_INFO = (
-    "Simply run ``c2p -O <owner_name>`` in the command-line to generate a PDF"
+    "Simply run ``c2p <owner_name>`` in the command-line to generate a PDF"
     " of your repo's commit history (assuming your current directory is a"
-    " repository). Run commits2pdf -h for more information."
+    " repository). Run c2p -h for more information."
 )
 INVALID_ARG_WARNING = (
     "Invalid {} format. Run commits2pdf -h for more information."

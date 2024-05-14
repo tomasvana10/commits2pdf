@@ -8,6 +8,7 @@ from datetime import datetime
 from logging import ERROR
 from os import path
 from re import match, search
+from typing import Dict, List, Tuple, Union
 
 from pathvalidate import ValidationError, validate_filename, validate_filepath
 
@@ -147,7 +148,7 @@ def _open_pdf(args, p) -> None:
                 os_system("xdg-open %s" % p)
 
 
-def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
+def _validate_args(args: Namespace) -> Tuple[Union[None, str, List[str]]]:
     """Process arguments through some conditions and regex matching to ensure
     they are valid. Raise errors if they are not valid.
     """
@@ -165,7 +166,7 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
         if not match(EMAILS, args.authors):
             logger.error(INVALID_ARG_WARNING.format("email"))
             exit(1)
-        authors: list[str] = args.authors.split(",")
+        authors: List[str] = args.authors.split(",")
 
     if args.start_date:
         if not match(DATE, args.start_date):
@@ -182,13 +183,13 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
         if search(INVALID_QUERIES, args.include):
             logger.error(INVALID_ARG_WARNING.format("query"))
             exit(1)
-        include: list[str] = args.include.split(",")
+        include: List[str] = args.include.split(",")
 
     if args.exclude:
         if search(INVALID_QUERIES, args.exclude):
             logger.error(INVALID_ARG_WARNING.format("query"))
             exit(1)
-        exclude: list[str] = args.exclude.split(",")
+        exclude: List[str] = args.exclude.split(",")
 
     if args.gen1:
         try:
@@ -197,7 +198,7 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
             logger.error(CAIRO_DEPRECATION_ERROR)
             exit(1)
         gen, mode = "gen1", None
-        appearance: dict[str, tuple[int]] = (
+        appearance: Dict[str, Tuple[int]] = (
             CAIRO_LIGHT if not args.dark else CAIRO_DARK
         )
         if args.scaling != 1.0:
@@ -206,7 +207,7 @@ def _validate_args(args: Namespace) -> tuple[None | str | list[str]]:
         gen, mode = (
             ("gen2a", "stable") if args.gen2a else ("gen2b", "unstable")
         )
-        appearance: dict[str, tuple[int]] = (
+        appearance: Dict[str, Tuple[int]] = (
             FPDF_LIGHT if not args.dark else FPDF_DARK
         )
         scaling = args.scaling

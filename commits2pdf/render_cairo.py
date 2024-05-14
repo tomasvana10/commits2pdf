@@ -2,6 +2,7 @@ from datetime import datetime
 from os import path
 from textwrap import wrap
 from time import time
+from typing import Dict, List, Tuple
 
 from cairo import (
     FONT_SLANT_ITALIC,
@@ -23,7 +24,7 @@ class Cairo_PDF:
         commits: object,
         output: str,
         filename: str,
-        appearance: dict[str, tuple[int]],
+        appearance: Dict[str, Tuple[int]],
     ) -> None:
         """Assign attributes for use across the instance and instantiate the
         core parts of a pycairo PDF.
@@ -122,26 +123,26 @@ class Cairo_PDF:
 
     def _draw_rname(self, rname: str, y: int) -> None:
         """Draw the repository name."""
-        w_rname: list[str] = wrap(
+        w_rname: List[str] = wrap(
             f"Repository: {rname}", width=(WIDTH - MARGIN * 2) // 8
         )
         self._draw_wrapped_text(w_rname, y, 18, "b")
 
-    def _get_commit_text(self, commit: object) -> tuple[list[str]]:
+    def _get_commit_text(self, commit: object) -> Tuple[List[str]]:
         """Get the commit text for a commit and wrap it with a bunch of magic
         numbers.
         """
-        info: list[str] = wrap(
+        info: List[str] = wrap(
             commit["info"], width=(WIDTH - MARGIN * 2) // 6.5
         )
-        title: list[str] = wrap(
+        title: List[str] = wrap(
             commit["title"], width=(WIDTH - MARGIN * 2) // 8
         )
-        diff_url: list[str] = wrap(
+        diff_url: List[str] = wrap(
             commit["diff_url"], width=(WIDTH - MARGIN * 2) // 5
         )
 
-        desc_lines: list[str] = commit["description"].split("\n")
+        desc_lines: List[str] = commit["description"].split("\n")
         desc = []
         for line in desc_lines:
             lines = wrap(line, width=(WIDTH - MARGIN * 2) // 5)
@@ -153,7 +154,7 @@ class Cairo_PDF:
 
     def _draw_wrapped_text(
         self,
-        lines: list[str],
+        lines: List[str],
         y: int,
         font_size: int,
         font_type: str,
@@ -173,7 +174,7 @@ class Cairo_PDF:
         return this_y + 15
 
     def draw_commit(
-        self, commit: object, y: int, *args: tuple[list[str]]
+        self, commit: object, y: int, *args: Tuple[List[str]]
     ) -> None:
         """Driver function for its own driver function idk."""
         new_y = self._draw_wrapped_text(
