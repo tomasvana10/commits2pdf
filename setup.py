@@ -16,9 +16,9 @@ setup(
     platforms="any",
     install_requires=[
         "GitPython",
-        "pycairo",
         "fpdf",
-        "tqdm"
+        "tqdm",
+        "pathvalidate"
     ],
     entry_points={
         "console_scripts": [

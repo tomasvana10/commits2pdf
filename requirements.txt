@@ -1,4 +1,4 @@
-fpdf==1.7.2
-GitPython==3.1.43
-pycairo==1.26.0
-tqdm==4.66.2
+fpdf
+GitPython
+tqdm
+pathvalidate
