@@ -20,7 +20,6 @@ from .constants import (
     TITLE_PAGE_INFO_FONT,
     WRITING_PDF_INFO,
     FPDF_DARK,
-    INVALID_OUTPUT_DIR_ERROR
 )
 from .logger import logger
 
@@ -79,12 +78,7 @@ class FPDF_PDF:
                 else "your current directory..."
             )
         )
-        try:
-            self._write()
-        except OSError:
-            logger.error(INVALID_OUTPUT_DIR_ERROR)
-            self.err_flag = True
-            exit(1)
+        self._write()
 
     @staticmethod
     def _set_scaling(scaling: float) -> None:
@@ -92,6 +86,7 @@ class FPDF_PDF:
         default.
         """
         TITLE_FONT[2] *= scaling
+        TITLE_PAGE_INFO_FONT[2] *= scaling
         SUBTITLE_FONT[2] *= scaling
         SMALL_TEXT_FONT[2] *= scaling
         MEDIUM_TEXT_FONT[2] *= scaling
@@ -101,7 +96,7 @@ class FPDF_PDF:
     def _configure_fpdf(self):
         self._p.set_fill_color(*self._ap["background"])
         self._p.set_creator("commits2pdf")
-        self._p.set_title(f"Commits Report - {self._commits.rname}")
+        self._p.set_title(f"Commit Report - {self._commits.rname}")
         self._p.set_author(f"{self._commits.owner}")
         self._p.set_subject("Git Commit Report")
         self._p.set_keywords(
@@ -152,7 +147,12 @@ class FPDF_PDF:
     def _draw_newpage_commit(self, commit, no_divider=False):
         """Draw a commit that cannot fit on the existing page."""
         self.footer()
-        self._p.add_page()
+        # Ensure that a new page is not added when drawing the commit (that is
+        # a multipage commit) to prevent page 2 being empty.
+        if self._p.page_no() == 2 and self.commit_counter == 0:
+            self._p.set_y(MARGIN_TB)
+        else:
+            self._p.add_page()
         self._draw_page_bg()
         self._p.set_auto_page_break(auto=True, margin=MARGIN_TB)
         self._p.footer = self.footer # Temporarily override the empty ``footer``
@@ -211,6 +211,23 @@ class FPDF_PDF:
                     if self.commit_counter == self.commit_count:
                         self.footer()
 
+    def _get_pdf_object(self, pre_vis):
+        if not pre_vis or not self.do_pre_vis:
+            return self._p
+        else:
+            try:
+                return loads(dumps(self._p))
+            except RecursionError:
+                logger.error(RECURSION_ERROR)
+                self.err_flag = True
+                exit(1)
+            except Exception as ex:
+                logger.error(
+                    f"An unrecognised error occured: {type(ex).__name__}: {ex}"
+                )
+                self.err_flag = True
+                exit(1)
+
     def _draw_commit(
         self,
         commit: dict[str, str],
@@ -220,21 +237,7 @@ class FPDF_PDF:
         """Draw all the parts of a commit to the current ``FPDF`` instance
         or a copy of it as part of the ``gen2b`` generation implementation.
         """
-        if not pre_vis or not self.do_pre_vis:
-            p = self._p
-        else:
-            try:
-                p = loads(dumps(self._p))
-            except RecursionError:
-                logger.error(RECURSION_ERROR)
-                self.err_flag = True
-                exit(1)
-            except Exception as ex:
-                logger.error(
-                    f"An unrecognised error occured -- {type(ex).__name__}: {ex}"
-                )
-                self.err_flag = True
-                exit(1)
+        p = self._get_pdf_object(pre_vis)
 
         p.set_text_color(*self._ap["text"])
         self._set_font(*INFO_TEXT_FONT, obj=p)
@@ -305,13 +308,15 @@ class FPDF_PDF:
         """Draw the title, repository name, and filtering information on the
         first page of the PDF.
         """
+        # Title text ("Commit Report")
         self._set_font(*TITLE_FONT)
         self._p.set_text_color(*self._ap["text"])
         self._p.cell(
-            w=0, h=self._p.font_size * 1.5, txt="Commits Report", align="C"
+            w=0, h=self._p.font_size * 1.5, txt="Commit Report", align="C"
         )
         self._p.ln()
 
+        # Subtitle for "Repository"
         self._set_font(*SUBTITLE_FONT)
         self._p.multi_cell(
             w=0,
@@ -321,6 +326,7 @@ class FPDF_PDF:
         )
         self._p.ln(self._p.font_size)
 
+        # Owner
         self._set_font(*TITLE_PAGE_INFO_FONT)
         self._p.multi_cell(
             0,
@@ -329,23 +335,36 @@ class FPDF_PDF:
             align="C",
         )
         self._p.ln()
+        
+        # Author(s)
+        if self._commits.authors:
+            authors = self._commits.authors.split(",")
+            txt = f"Authors: {', '.join(authors)}"
+            if len(authors) == 1:
+                txt = txt.replace("Authors: ", "Author: ")
+        else:
+            txt = "Authors: All"
         self._p.multi_cell(
             0,
             self._p.font_size * 1.5,
             align="C",
-            txt=f"Selected authors: "
-            f"{', '.join(self._commits.authors.split(',')) if self._commits.authors else 'All'}",
+            txt=txt
         )
         self._p.ln()
-        self._p.multi_cell(
-            0,
-            self._p.font_size * 1.5,
-            align="C",
-            txt=f"Start date: "
-            f"{self._commits.start_date.strftime('%d/%m/%Y') if self._commits.start_date else 'N/A'} "
-            f"| End date: {self._commits.end_date.strftime('%d/%m/%Y') if self._commits.end_date else 'N/A'}",
-        )
-        self._p.ln()
+        
+        # Start and end date, omit if no data
+        if self._commits.start_date or self._commits.end_date:
+            self._p.multi_cell(
+                0,
+                self._p.font_size * 1.5,
+                align="C",
+                txt=f"Start date: "
+                f"{self._commits.start_date.strftime('%d/%m/%Y') if self._commits.start_date else 'N/A'} "
+                f"| End date: {self._commits.end_date.strftime('%d/%m/%Y') if self._commits.end_date else 'N/A'}",
+            )
+            self._p.ln()
+        
+        # Branch
         self._p.multi_cell(
             0,
             self._p.font_size * 1.5,
@@ -353,36 +372,54 @@ class FPDF_PDF:
             txt=f"Branch: {self._commits.branch}"
         )
         self._p.ln()
-        self._p.multi_cell(
-            0,
-            self._p.font_size * 1.5,
-            txt=f"Newest n commits: "
-            f"{self._commits.newest_n_commits} | Oldest n commits: "
-            f"{self._commits.oldest_n_commits}",
-            align="C",
-        )
-        self._p.ln()
-        self._p.multi_cell(
-            0,
-            self._p.font_size * 1.5,
-            align="C",
-            txt=f"Including: "
-            f"{', '.join(self._commits.include) if self._commits.include else 'No specification'}",
-        )
-        self._p.ln()
-        self._p.multi_cell(
-            0,
-            self._p.font_size * 1.5,
-            align="C",
-            txt=f"Excluding: "
-            f"{', '.join(self._commits.exclude) if self._commits.exclude else 'No specification'}",
-        )
-        self._p.ln()
+        
+        # Newest and oldest n commits, omit if no data
+        if self._commits.newest_n_commits or self._commits.oldest_n_commits:
+            self._p.multi_cell(
+                0,
+                self._p.font_size * 1.5,
+                txt=f"Newest n commits: "
+                f"{self._commits.newest_n_commits} | Oldest n commits: "
+                f"{self._commits.oldest_n_commits}",
+                align="C",
+            )
+            self._p.ln()
+        
+        # Include/exclude filters, omit if no data
+        if self._commits.include:
+            self._p.multi_cell(
+                0,
+                self._p.font_size * 1.5,
+                align="C",
+                txt=f"Including: "
+                f"{', '.join(self._commits.include) if self._commits.include else 'No specification'}",
+            )
+            self._p.ln()
+        if self._commits.exclude:
+            self._p.multi_cell(
+                0,
+                self._p.font_size * 1.5,
+                align="C",
+                txt=f"Excluding: "
+                f"{', '.join(self._commits.exclude) if self._commits.exclude else 'No specification'}",
+            )
+            self._p.ln()
+        
+        # Sorting
         self._p.multi_cell(
             0,
             self._p.font_size * 1.5,
             align="C",
             txt=f"Sorting: "
             f"{'Oldest to newest' if not self._commits.reverse else 'Newest to oldest'}",
+        )
+        self._p.ln()
+        
+        # Commit count
+        self._p.multi_cell(
+            0,
+            self._p.font_size * 1.5,
+            align="C",
+            txt=f"Commit count: {len(self._commits.filtered_commits)}"
         )
         self._p.ln()
