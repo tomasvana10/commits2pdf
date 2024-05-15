@@ -30,8 +30,8 @@ CANNOT_USE_SCALE_WARNING = (
     "You cannot set scaling when using the gen1 PDF generator."
 )
 INVALID_BASENAME_WARNING = (
-    "If the directory name of the git repository you are accessing has been"
-    " renamed, there may be incorrect diff links in the output PDF."
+    "To ensure all hyperlinks in the output PDF are valid, please check that your "
+    "repository's folder name is correct."
 )
 
 
@@ -49,25 +49,14 @@ NONEXISTING_BRANCH_WARNING = (
     " ({}) instead."
 )
 NONEXISTING_OR_INVALID_REPO_ERROR = (
-    "The repository you specified does not exist or is invalid. Attempting to"
-    " delete tree..."
+    "The repository does not exist or is invalid. Attempting to delete."
 )
 INVALID_GIT_REPO_ERROR = (
-    "The path to the repo you specified ({}) does not contain a .git file."
-    " Exiting..."
+    "The path you entered ({}) does not contain a .git file."
 )
-CLONING_REPO_INFO = (
-    "Cloning the .git file of your specified repository. This may take a"
-    " while..."
-)
-NONEXISTING_REPO_ERROR = (
-    "The repository you specified does not exist. Exiting..."
-)
-MUST_RECLONE_ERROR = (
-    "Please delete your repository from your file system and rerun your"
-    " console command to clone a different branch of your specified"
-    " repository."
-)
+CLONING_REPO_INFO = "Cloning. This may take a while."
+NONEXISTING_REPO_ERROR = "The repository does not exist."
+MUST_RECLONE_ERROR = "Please delete your repository and try again."
 ZERO_COMMITS_WARNING = (
     "Based on your filtering parameters, the total commit count has been reduced "
     "to zero."
@@ -87,7 +76,7 @@ GATHERED_COMMITS_INFO = (
 
 
 # General PDF messages
-WRITING_PDF_INFO = "Writing your PDF to {}"
+WRITING_PDF_INFO = "Writing PDF to {}"
 INVALID_OUTPUT_DIR_ERROR = "Invalid characters in output directory."
 INVALID_FILENAME_ERROR = "Invalid characters in filename."
 FILENAME = "{}-commit_report.pdf"
