@@ -26,6 +26,7 @@ Visualise a Git repository's commit history in PDF form via the command-line
 If using `python` or `pip` doesn't work, try using `python3` or `pip3`
 
 - Make a virtual environment and activate it (recommended):
+  - Before you make a virtual environment, you should change your current directory to the folder of your repository. If you don't know how, read [Changing your terminal's directory](#changing-your-terminals-directory).
 ```
 pip install virtualenv
 python -m venv venv
@@ -47,59 +48,72 @@ deactivate
 
 **If you encounter errors with building `pycairo`, click [here](https://stackoverflow.com/a/76175684/23245953)**
 
-## Command-line parameters
-```
-positional arguments:
-  owner                 The owner of the git repository. Required.
-
-options:
-  -h, --help            show this help message and exit
-  -o OUTPUT, --output OUTPUT
-                        Directory path to your PDF output. Set to "." (your current directory) by default. Will be created if it does not exist. Example: ./work/my_pdfs
-  -n NAME, --name NAME  The name of your outputted PDF file. Set to "<repo_name>-commit_report" by default.
-  -b BRANCH, --branch BRANCH
-                        The repository branch. Set to "main" by default.
-  -a AUTHORS, --authors AUTHORS
-                        Filter commits from a comma-separated list of authors. Format: <author@email.com> OR <author1@email.com,author2@email.com> etc. Set to all authors by
-                        default.
-  -s START_DATE, --start_date START_DATE
-                        Filter from start date of commits. Format: d/m/YYYY. Example: 5/12/2023
-  -e END_DATE, --end_date END_DATE
-                        Filter to end date of commits. Format: d/m/YYYY. Example: 5/12/2023
-  -r, --reverse         Output the commits from newest to oldest. Set to oldest to newest by default
-  -d, --dark            Toggle dark mode for the output PDF. Set to "light" by default.
-  -po, --prevent-open   Prevent commits2pdf from automatically opening the directory the PDF was created in.
-  -sc SCALING, --scaling SCALING
-                        Set the scaling of the output PDF. Only available with gen2a and gen2b.
-  -in INCLUDE, --include INCLUDE
-                        Include commits with the given string sequences in their title or description. Format: "<string1>" OR "<string1,string2>". Whitespace sensitive and case      
-                        insensitive. NOTE: This query is performed BEFORE excluding commits.
-  -ex EXCLUDE, --exclude EXCLUDE
-                        Exclude commits with the given string sequences in their title or description. Format: "<string1>" OR "<string1,string2>". Whitespace sensitive and case      
-                        insensitive.
-  -q, --quiet           Suppress all logger messages except for errors.
-  -gen1, --pdf_gen_1    PDF rendering implementation with ``pycairo``.
-  -gen2a, --pdf_gen_2a  The first PDF rendering implementation with ``fpdf``.
-  -gen2b, --pdf_gen_2b  The second PDF rendering implementation with ``fpdf``. The default option.
-  -rp RPATH, --repo-path RPATH
-                        Path to your repository directory. Set to "." (your current directory) by default.
-  -fc RNAME, --repo-from-clone RNAME
-                        Clone a repo into the working directory and generate the commits PDF from it automatically. Format: <repo name> (case insensitive).
-  -nc NEWEST_N_COMMITS, --newest-n-commits NEWEST_N_COMMITS
-                        Select the newest n number amount of commits to include after filtering.
-  -oc OLDEST_N_COMMITS, --oldest-n-commits OLDEST_N_COMMITS
-                        Select the oldest n number amount of commits to include after filtering.
-```
-
-## Usage
-First, it is recommended that you change your terminal's directory to the path of your Git repository's folder:
-- First, find your repository's folder, then:
+## Changing your terminal's directory
+- Open your terminal
+- Find your repository's folder
 - On Windows/Linux: Open the folder, press `CTRL+L`, then press `CTRL+C`
 - On MacOS: Right click on the folder, hold `option` (`⌥`) and click `Copy <folder name> as Pathname`
 
-Then, in your terminal, type `cd <the path you copied>` (paste in the path with `CTRL+V` or `CMD+V`). Now, you are ready to use commits2pdf!
+Then, in your terminal, type `cd <the path you copied>` (paste in the path with `CTRL+V` or `CMD+V`).
 
-<br>**Usage example #1**
+## Command-line parameters
+There are many ways to configure the process of PDF generation through command line flags. For a brief introduction on how to use these flags, read [Usage](#usage)
+
+<details><summary>Positional Flags</summary>
+
+`owner` : The owner of the git repository. Required.
+
+</details>
+
+<details><summary>Optional Flags</summary>
+                        
+  `-o`, `--output` : Directory path to your PDF output. Set to `.` (your current directory) by default. Will be created if it does not exist. Example: `./work/my_pdfs`
+  
+  `-n`, `--name` : The name of your outputted PDF file. Set to `<repo_name>-commit_report` by default.
+  
+  `-b`, `--branch` : The repository branch. Set to `main` by default.
+                        
+  `-a`, `--authors` : Filter commits from a comma-separated list of authors. Format: `<author@email.com>` OR `<author1@email.com,author2@email.com>` etc. Set to `all authors` by default.
+                        
+  `-s`, `--start-date` : Filter from start date of commits. Format: `d/m/YYYY`. Example: `5/12/2023`
+                        
+  `-e`, `--end-date` : Filter to end date of commits. Format: `d/m/YYYY`. Example: `5/12/2023`
+                        
+  `-r`, `--reverse` : Output the commits from newest to oldest. Set to `oldest to newest` by default
+  
+  `-d`, `--dark` : Toggle dark mode for the output PDF. Set to `light` by default.
+  
+  `-po`, `--prevent-open` : Prevent commits2pdf from automatically opening the directory the PDF was created in.
+  
+  `-sc`, `--scaling` : Set the scaling of the output PDF. Only available with `-gen2a` and `-gen2b`.
+                        
+  `-in`, `--include` : Include commits with the given string sequences in their title or description. Format: `<string1>` OR `<string1,string2>`. Whitespace sensitive and case insensitive. NOTE: This query is performed BEFORE excluding commits.
+                        
+  `-ex`, `--exclude` : Exclude commits with the given string sequences in their title or description. Format: `<string1>` OR `<string1,string2>`. Whitespace sensitive and case insensitive.
+                        
+  `-q`, `--quiet` : Suppress all logger messages except for errors.
+  
+  `-gen1`, `--pdf-gen-1 ` : PDF rendering implementation with `pycairo`.
+  
+  `-gen2a`, `--pdf-gen-2a` : The first PDF rendering implementation with `fpdf`.
+  
+  `-gen2b`, `--pdf-gen-2b` : The second PDF rendering implementation with `fpdf`. The default option.
+  
+  `-rp RPATH`, `--repo-path` : Path to your repository directory. Set to `.` (your current directory) by default.
+                        
+  `-fc`, `--repo-from-clone` : Clone a repo into the working directory and generate the commits PDF from it automatically. Format: `<repo name>` (case insensitive).
+                        
+  `-nc`, `--newest-n-commits` : Select the newest n number amount of commits to include after filtering.
+                        
+  `-oc`, `--oldest-n-commits` : Select the oldest n number amount of commits to include after filtering.
+
+</details>
+
+## Usage
+
+- Tip: If the value you are providing for a given argument/flag includes spaces, wrap in it quotations ("") to ensure it is parsed properly.
+
+**Usage example #1**
 ```
 c2p tomasvana10
 ```

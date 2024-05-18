@@ -55,13 +55,13 @@ parser.add_argument(
 )
 parser.add_argument(
     "-s",
-    "--start_date",
+    "--start-date",
     dest="start_date",
     help="Filter from start date of commits. Format: d/m/YYYY. Example: 5/12/2023",
 )
 parser.add_argument(
     "-e",
-    "--end_date",
+    "--end-date",
     dest="end_date",
     help="Filter to end date of commits. Format: d/m/YYYY. Example: 5/12/2023",
 )
@@ -136,21 +136,21 @@ parser.add_argument(
 gen_group = parser.add_mutually_exclusive_group()
 gen_group.add_argument(
     "-gen1",
-    "--pdf_gen_1",
+    "--pdf-gen-1",
     action="store_true",
     dest="gen1",
     help="PDF rendering implementation with ``pycairo``.",
 )
 gen_group.add_argument(
     "-gen2a",
-    "--pdf_gen_2a",
+    "--pdf-gen-2a",
     action="store_true",
     dest="gen2a",
     help="The first PDF rendering implementation with ``fpdf``.",
 )
 gen_group.add_argument(
     "-gen2b",
-    "--pdf_gen_2b",
+    "--pdf-gen-2b",
     action="store_true",
     dest="gen2b",
     help=(
