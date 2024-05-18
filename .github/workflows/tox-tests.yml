@@ -24,9 +24,9 @@ jobs:
         python-version: [3.7, 3.8, 3.9, '3.10', 3.11, 3.12]
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
       if: ${{ ! startsWith(matrix.python-version, 'pypy-') }}
-    - uses: actions/checkout@v1
+    - uses: actions/checkout@v4
       if: ${{ startsWith(matrix.python-version, 'pypy-') }}
       # Using actions/checkout@v2 or later with pypy causes an error
       # https://foss.heptapod.net/pypy/pypy/-/issues/3640
@@ -34,7 +34,7 @@ jobs:
       # listdir('/home/runner/work/tox-gh-actions/tox-gh-actions/.tox/dist/
       # warnings.warn(f\'"{wd.path}" is shallow and may cause errors\')',)
     - name: Set up Python ${{ matrix.python-version }}
-      uses: actions/setup-python@v4
+      uses: actions/setup-python@v5
       with:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
@@ -46,11 +46,11 @@ jobs:
       run: tox
     - name: Upload coverage.xml
       if: ${{ matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.12' }}
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: tox-gh-actions-coverage
         path: coverage.xml
         if-no-files-found: error
     - name: Upload coverage.xml to codecov
       if: ${{ matrix.platform == 'ubuntu-latest' && matrix.python-version == '3.12' }}
-      uses: codecov/codecov-action@v2
+      uses: codecov/codecov-action@v4
