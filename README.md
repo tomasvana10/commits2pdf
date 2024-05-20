@@ -23,10 +23,12 @@ Visualise a Git repository's commit history in PDF form via the command-line
 ## Installation
 **requires [pip](https://pip.pypa.io/en/stable/installation/)**
 
-If using `python` or `pip` doesn't work, try using `python3` or `pip3`
+> [!TIP] 
+> If using `python` or `pip` doesn't work, try using `python3` or `pip3`
 
 - Make a virtual environment and activate it (recommended):
-  - Before you make a virtual environment, you should change your current directory to the folder of your repository. If you don't know how, read [Changing your terminal's directory](#changing-your-terminals-directory).
+> [!IMPORTANT]
+> Before you make a virtual environment, you should change your current directory to the folder of your repository. If you don't know how, read [Changing your terminal's directory](#changing-your-terminals-directory).
 ```
 pip install virtualenv
 python -m venv venv
@@ -46,7 +48,8 @@ pip install --user -U commits2pdf
 deactivate
 ```
 
-**If you encounter errors with building `pycairo`, click [here](https://stackoverflow.com/a/76175684/23245953)**
+> [!TIP]
+> **If you encounter errors with building `pycairo`, click [here](https://stackoverflow.com/a/76175684/23245953)**
 
 ## Changing your terminal's directory
 1. Open your terminal
@@ -111,7 +114,8 @@ There are many ways to configure the process of PDF generation through command l
 
 ## Usage
 
-- Tip: If the value you are providing for a given argument/flag includes spaces, wrap in it quotations ("") to ensure it is parsed properly.
+> [!TIP]
+> If the value you are providing for a given argument/flag includes spaces, wrap in it quotations ("") to ensure it is parsed properly.
 
 **Usage example #1**
 ```
