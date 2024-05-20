@@ -7,3 +7,4 @@ build
 dist
 commits2pdf.egg-info
 .ruff_cache
+**/.DS_Store

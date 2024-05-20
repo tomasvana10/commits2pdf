@@ -4,7 +4,7 @@
   ![Licence](https://img.shields.io/badge/licence-MIT-green?style=flat?logo=licence)
   [![PyPI version](https://img.shields.io/pypi/v/commits2pdf?style=flat-square)](https://pypi.org/project/commits2pdf/)
   [![Publish to PyPI.org](https://github.com/tomasvana10/commits2pdf/actions/workflows/publish.yml/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/publish.yml)
-  [![Release)](https://img.shields.io/github/v/release/tomasvana10/commits2pdf?logo=github)](https://github.com/tomasvana10/commits2pdf/releases/latest)
+  [![Release](https://img.shields.io/github/v/release/tomasvana10/commits2pdf?logo=github)](https://github.com/tomasvana10/commits2pdf/releases/latest)
   [![Issues](https://img.shields.io/github/issues-raw/tomasvana10/commits2pdf.svg?maxAge=25000)](https://github.com/tomasvana10/commits2pdf/issues)
   [![CodeQL](https://github.com/tomasvana10/commits2pdf/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/github-code-scanning/codeql)
   [![Tests](https://github.com/tomasvana10/commits2pdf/actions/workflows/tox-tests.yml/badge.svg)](https://github.com/tomasvana10/commits2pdf/actions/workflows/tox-tests.yml)
@@ -49,12 +49,12 @@ deactivate
 **If you encounter errors with building `pycairo`, click [here](https://stackoverflow.com/a/76175684/23245953)**
 
 ## Changing your terminal's directory
-- Open your terminal
-- Find your repository's folder
-- On Windows/Linux: Open the folder, press `CTRL+L`, then press `CTRL+C`
-- On MacOS: Right click on the folder, hold `option` (`⌥`) and click `Copy <folder name> as Pathname`
+1. Open your terminal
+2. Find your repository's folder
+3. (a) On Windows/Linux: Open the folder, press `CTRL+L`, then press `CTRL+C`. Alternatively, right click on the folder and click `Copy as path`.
+3. (b) On MacOS: Right click on the folder, hold `option` (`⌥`) and click `Copy <folder name> as Pathname`
 
-Then, in your terminal, type `cd <the path you copied>` (paste in the path with `CTRL+V` or `CMD+V`).
+Then, in your terminal, run `cd <the path you copied>` (paste in the path with `CTRL+V` or `CMD+V`).
 
 ## Command-line parameters
 There are many ways to configure the process of PDF generation through command line flags. For a brief introduction on how to use these flags, read [Usage](#usage)
@@ -99,7 +99,7 @@ There are many ways to configure the process of PDF generation through command l
   
   `-gen2b`, `--pdf-gen-2b` : The second PDF rendering implementation with `fpdf`. The default option.
   
-  `-rp RPATH`, `--repo-path` : Path to your repository directory. Set to `.` (your current directory) by default.
+  `-rp`, `--repo-path` : Path to your repository directory. Set to `.` (your current directory) by default.
                         
   `-fc`, `--repo-from-clone` : Clone a repo into the working directory and generate the commits PDF from it automatically. Format: `<repo name>` (case insensitive).
                         
@@ -129,7 +129,7 @@ c2p tomasvana10 -o .. -rp ./my_repo -n "new_name.pdf"
 ```
 c2p tomasvana10 -nc 10 -in "javascript,build" -ex "testing"
 ```
-> Output a PDF to the current directory, displaying the newest 10 commits after filtering commits that contain "javascript" and/or "build in their title or description and do not contain "testing".
+> Output a PDF to the current directory, displaying the newest 10 commits after filtering commits that contain "javascript" and/or "build" in their title or description and do not contain "testing".
 
 <br>**Usage example #4**
 ```
@@ -139,20 +139,30 @@ c2p devguarv -fc Yr-12-HSC-SDD-Task-2 -e 28/4/2024
 
 ## PDF generation implementations
 ### pycairo (gen1 - deprecated)
-👍 Fast<br>
-👎 Cannot write multipage commits<br>
-👎 Looks like crap<br>
+👍 Fast
+
+👎 Cannot write multipage commits
+
+👎 Looks like crap
+
 👎 No hyperlinks, therefore the entire link to a commit's diff is displayed
 
 ### fpdf (gen2a)
-👍 Fast<br>
-👍 Can be scaled with the `-sc <float>` argument<br> 
-👍 Sleek design<br>
-👍 Information title page<br>
-👍 Contains hyperlinks<br>
-👍 Stores PDF metadata<br>
-👎 Inconsistent page breaks, a general limitation with FPDF when trying to fit as many whole commits on a single page<br> 
+👍 Fast
+
+👍 Can be scaled with the `-sc <float>` argument<
+
+👍 Sleek design
+
+👍 Information title page
+
+👍 Contains hyperlinks
+
+👍 Stores PDF metadata
+
+👎 Inconsistent page breaks, a general limitation with FPDF when trying to fit as many whole commits on a single page
 
 ### fpdf (gen2b - Default)
-👍 Same as `gen2a` but with accurate page breaking<br>
-👎 Slow when generating large amounts of commits (generally, it is a good idea to enable `-gen2a` when drawing over 5000 commits)<br>
+👍 Same as `gen2a` but with accurate page breaking
+
+👎 Slow when generating large amounts of commits (generally, it is a good idea to enable `-gen2a` when drawing over 5000 commits)
