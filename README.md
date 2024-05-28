@@ -21,14 +21,18 @@ Visualise a Git repository's commit history in PDF form via the command-line
 `pycairo` (used for deprecated PDF generation method, must be installed manually)
 
 ## Installation
-**requires [pip](https://pip.pypa.io/en/stable/installation/)**
+> [!IMPORTANT]
+> Installing `commits2pdf` requires Python and pip.
+> If you have Python installed without pip, click **[here](https://pip.pypa.io/en/stable/installation/)** to install it.<br><br>
+> If you do not have Python installed, download the installer **[here](https://www.python.org/downloads/)**, then refer to the previous link on how to install pip.<br><br>
+> Additionaly, `commits2pdf` requires Git for `gitpython` functionality. Install it **[here](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)**.
 
-> [!TIP] 
-> If using `python` or `pip` doesn't work, try using `python3` or `pip3`
+> [!TIP]
+> If using `python` or `pip` doesn't work, try using `python3` or `pip3`.
 
 - Make a virtual environment and activate it (recommended):
-> [!IMPORTANT]
-> Before you make a virtual environment, you should change your current directory to the folder of your repository. If you don't know how, read [Changing your terminal's directory](#changing-your-terminals-directory).
+
+  - Before you make a virtual environment, you should change your current directory to the folder of your repository. If you don't know how, read [Changing your terminal's directory](#changing-your-terminals-directory).
 ```
 pip install virtualenv
 python -m venv venv

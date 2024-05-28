@@ -5,7 +5,7 @@ with open("README.md", encoding="utf-8") as f:
 
 setup(
     name="commits2pdf",
-    version="1.1.15",
+    version="1.1.16",
     author="Tomas Vana",
     url="https://github.com/tomasvana10/commits2pdf",
     description="Convert Git commits to a PDF",
