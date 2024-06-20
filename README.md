@@ -30,16 +30,17 @@ Visualise a Git repository's commit history in PDF form via the command-line
 > [!TIP]
 > If using `python` or `pip` doesn't work, try using `python3` or `pip3`.
 
-- Make a virtual environment and activate it (recommended):
+1. Make a virtual environment and activate it (recommended):
 
-  - Before you make a virtual environment, you should change your current directory to the folder of your repository. If you don't know how, read [Changing your terminal's directory](#changing-your-terminals-directory).
+    - Before you make a virtual environment, you should change your current directory to the folder of your repository. If you don't know how, read [Changing your terminal's directory](#changing-your-terminals-directory).
+    - If you are on Windows and you cannot activate the virtual environment, try running `Set-ExecutionPolicy Unrestricted -Scope Process` and try again.
 ```
 pip install virtualenv
 python -m venv venv
 MacOS/Unix: source venv/bin/activate
 Windows: venv\scripts\activate
 ```
-- Install the package in your system directory/virtual environment:
+2. Install the package in your system directory/virtual environment:
 ```
 pip install -U commits2pdf
 ```
@@ -47,7 +48,7 @@ or, install the package in your home directory if you aren't using a virtual env
 ```
 pip install --user -U commits2pdf
 ```
-- You can deactivate your virtual environment when you are done:
+3. You can deactivate your virtual environment when you are done:
 ```
 deactivate
 ```
