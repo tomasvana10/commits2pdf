@@ -29,37 +29,29 @@ INVALID_ARG_WARNING = (
 CANNOT_USE_SCALE_WARNING = (
     "You cannot set scaling when using the gen1 PDF generator."
 )
-INVALID_BASENAME_WARNING = (
-    "To ensure all hyperlinks in the output PDF are valid, please check that your "
-    "repository's folder name is correct."
-)
 
 
 # Handling the processing of the repository
-REPO_ALREADY_EXISTS_WARNING = (
-    "The repository you are cloning from already exists, so it will be"
-    " accessed normally."
-)
 DETACHED_BRANCH_ERROR = (
-    "The repository you are cloning from already exists, but the branch you"
-    " specified ({}) is detached."
+    "The repository you are cloning from already exists, but the specified branch"
+    " ({}) is detached. Try updating your repository with `git pull`."
 )
 NONEXISTING_BRANCH_WARNING = (
-    "The branch you specified ({}) does not exist. Selecting the active branch"
+    "The branch \"{}\" does not exist. Selecting the active branch"
     " ({}) instead."
 )
 NONEXISTING_OR_INVALID_REPO_ERROR = (
-    "The repository does not exist or is invalid. Attempting to delete."
+    "The repository does not exist or is invalid."
 )
 INVALID_GIT_REPO_ERROR = (
     "The path you entered ({}) does not contain a .git file."
 )
-CLONING_REPO_INFO = "Cloning. This may take a while."
+CLONING_REPO_INFO = "Cloning - This may take a while."
 NONEXISTING_REPO_ERROR = "The repository does not exist."
 MUST_RECLONE_ERROR = "Please delete your repository and try again."
 ZERO_COMMITS_WARNING = (
     "Based on your filtering parameters, the total commit count has been reduced "
-    "to zero."
+    "to zero. Your commits PDF will be empty."
 )
 
 
@@ -88,14 +80,14 @@ HEIGHT = 792
 MARGIN = 50
 CAIRO_DEPRECATION_ERROR = (
     "This generation method has been deprecated. If you wish to use it, run "
-    "``pip install pycairo`` or ``pip3 install pycairo`` and try again."
+    "`pip install pycairo` or `pip3 install pycairo` and try again."
 )
 
 
 # For the fpdf PDF implementation
 RECURSION_ERROR = (
-    "An error occured when using the gen2b renderer. Please try adding the"
-    " -gen2a flag to your console command and try again."
+    "An error occured when using the gen2b renderer. Try adding the -gen2a flag "
+    "to your command and try again."
 )
 CODING = "latin-1"
 TITLE_FONT = ["Arial", "B", 36]

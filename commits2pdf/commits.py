@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from tempfile import mkdtemp
+
 from datetime import datetime
 from os import path
 from shutil import rmtree
@@ -27,13 +29,12 @@ from .constants import (
     NONEXISTING_BRANCH_WARNING,
     NONEXISTING_OR_INVALID_REPO_ERROR,
     NONEXISTING_REPO_ERROR,
-    REPO_ALREADY_EXISTS_WARNING,
     ZERO_COMMITS_WARNING,
 )
 from .logger import logger
 
 
-class Commits(object):
+class Commits:
     """Represents a filtered set of commits along with filter information."""
 
     def __init__(self, **kwargs) -> None:
@@ -74,13 +75,28 @@ class Commits(object):
         if len(self.filtered_commits) == 0:
             logger.warning(ZERO_COMMITS_WARNING)
 
+    def _validate_branch(self, r: Repo) -> Union[bool, None]:
+        """Ensure that ``self.branch`` exists. If not, attempt to set it to the
+        repo's active branch.
+        """
+
+        try:  # The branch they want does not exist, so access the active branch
+            if self.branch == str(r.active_branch):
+                return True
+            b: Head = r.active_branch
+        except TypeError:
+            return logger.error(DETACHED_BRANCH_ERROR.format(self.branch))
+
+        logger.warning(NONEXISTING_BRANCH_WARNING.format(self.branch, b))
+        self.branch: Head = b  # Update the branch to the repo's active branch
+        return True
+
     def _retry_clone(self, e) -> Union[Repo, str, None]:
         """Reattempt cloning if possible and update ``self.branch`` accordingly."""
         rmtree(self.rpath, ignore_errors=True)
-        if (
-            "remote branch" in str(e).casefold()
-        ):  # User entered invalid branch, so clone repo without specifying a 
-            # branch argument
+        if "remote branch" in str(e).casefold(): # User entered invalid branch, 
+                                                 # so clone repo without specifying 
+                                                 # a branch argument
             r: Repo = Repo.clone_from(self.url, self.rpath, no_checkout=True)
             try:
                 b: Head = r.active_branch
@@ -94,22 +110,6 @@ class Commits(object):
         else:  # Some other error occurred
             logger.error(NONEXISTING_OR_INVALID_REPO_ERROR.format(self.url))
             return "DELTREE"
-
-    def _validate_branch(self, r: Repo) -> Union[bool, None]:
-        """Ensure that ``self.branch`` exists. If not, attempt to set it to the
-        repo's active branch.
-        """
-        if self.branch == str(r.active_branch):
-            return True
-
-        try:  # The branch they want does not exist, so access the active branch
-            b: Head = r.active_branch
-        except TypeError:
-            return logger.error(DETACHED_BRANCH_ERROR.format(self.branch))
-
-        logger.warning(NONEXISTING_BRANCH_WARNING.format(self.branch, b))
-        self.branch: Head = b  # Update the branch to the repo's active branch
-        return True
 
     def _clone_repo(self) -> Union[Repo, str, None]:
         """Attempt to clone a repo's .git directory."""
@@ -131,26 +131,10 @@ class Commits(object):
         ensuring a high chance of the user's requests being processed.
         """
         if self.url:  # User wants to clone a repo
-            if path.exists(self.rpath) and path.isdir(self.rpath):  # Repo may
-                # exist
-                if path.exists(path.join(self.rpath, ".git")):  # .git exists
-                    logger.warn(REPO_ALREADY_EXISTS_WARNING)
-                    try:
-                        r: Repo = Repo(self.rpath)  # Attempt to access repo
-                    except NoSuchPathError:
-                        return logger.error(NONEXISTING_REPO_ERROR)
+            self.rpath = mkdtemp()
+            return self._clone_repo()
 
-                    return r if self._validate_branch(r) else None
-
-                else:  # .git does not exist, delete the existing folder and
-                       # clone the repo
-                    rmtree(self.rpath, ignore_errors=True)
-                    return self._clone_repo()
-
-            else:  # Repo does not exist, just clone it
-                return self._clone_repo()
-
-        else:  # Just access the repo normally
+        else:  # Access the repo normally
             try:
                 r: Repo = Repo(self.rpath)
                 return r if self._validate_branch(r) else None

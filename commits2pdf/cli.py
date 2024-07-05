@@ -25,7 +25,6 @@ from .constants import (
     FPDF_DARK,
     FPDF_LIGHT,
     INVALID_ARG_WARNING,
-    INVALID_BASENAME_WARNING,
     INVALID_FILENAME_ERROR,
     INVALID_OUTPUT_DIR_ERROR,
     INVALID_QUERIES,
@@ -59,9 +58,6 @@ def main() -> None:
         scaling,
         name,
     ) = _validate_args(args)
-
-    if args.rpath and not args.rname:
-        logger.warn(INVALID_BASENAME_WARNING)
 
     commits = Commits(
         rpath=rpath,
@@ -193,7 +189,7 @@ def _validate_args(args: Namespace) -> Tuple[Union[None, str, List[str]]]:
 
     if args.gen1:
         try:
-            import cairo
+            import cairo  # noqa: F401
         except ImportError:
             logger.error(CAIRO_DEPRECATION_ERROR)
             exit(1)

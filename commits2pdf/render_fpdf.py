@@ -35,6 +35,7 @@ def _beginpage_addon(func):
         self.set_fill_color(*FPDF_DARK["background"])
         self.rect(h=self.h, w=self.w, x=0, y=0, style="DF")
         return result
+
     return wrapper
 
 
@@ -154,9 +155,9 @@ class FPDF_PDF:
         # Prevent adding a new page on the first commit
         if self._p.page_no() == 2 and self.commit_counter == 0:
             self._p.set_y(MARGIN_TB)
-        else: # It is ok to add a new page, since the current one must have commits
+        else:  # It is ok to add a new page, since the current one must have commits
             self._p.add_page()
-            
+
         self._bg()
         self._p.set_auto_page_break(auto=True, margin=MARGIN_TB)
         self._commit(commit, no_divider=no_divider)
